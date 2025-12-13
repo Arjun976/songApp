@@ -3,7 +3,7 @@ import React from "react";
 import SongCard from "./SongCard";  // Same folder
 import Skeleton from "../../components/ui/Skeleton";
 
-const SongList = ({ songs = [], loading = false, onPlay, onAddToPlaylist, onFavorite }) => {
+const SongList = ({ songs = [], loading = false, onPlay, onAddToPlaylist, onFavorite, favorites = [] }) => {
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -29,6 +29,7 @@ const SongList = ({ songs = [], loading = false, onPlay, onAddToPlaylist, onFavo
           onPlay={onPlay}
           onAddToPlaylist={onAddToPlaylist}
           onFavorite={onFavorite}
+          isFavorited={favorites.includes(song._id)}
         />
       ))}
     </div>

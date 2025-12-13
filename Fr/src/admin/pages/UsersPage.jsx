@@ -1,24 +1,48 @@
 // admin/pages/UsersPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserTable from "../components/UserTable";
 import Button from "../../components/ui/Button";
+import { getAllUsers } from "../../api/admin"; // Assuming you create this API function
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const UsersPage = () => {
-  const [users, setUsers] = useState([
-    { _id: 1, name: "John Doe", email: "john@example.com", role: "user", isBanned: false, createdAt: new Date() },
-    { _id: 2, name: "Artist X", email: "artist@example.com", role: "artist", isBanned: false, createdAt: new Date() },
-    { _id: 3, name: "Spammer", email: "spam@bad.com", role: "user", isBanned: true, createdAt: new Date() },
-  ]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await getAllUsers();
+        setUsers(fetchedUsers);
+      } catch (err) {
+        setError("Failed to fetch users. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleBan = (id) => {
+    // Note: This is an optimistic update.
+    // In a real app, you'd call an API to ban the user and then update the state.
     setUsers(users.map(u => u._id === id ? { ...u, isBanned: !u.isBanned } : u));
   };
 
   const handleDelete = (id) => {
-    if (confirm("Delete this user permanently?")) {
+    // Note: This is an optimistic update.
+    // In a real app, you'd call an API to delete the user.
+    if (window.confirm("Are you sure you want to permanently delete this user?")) {
       setUsers(users.filter(u => u._id !== id));
     }
   };
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500 text-center">{error}</div>;
+
 
   return (
     <div className="min-h-screen bg-black text-white p-6">

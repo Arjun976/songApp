@@ -14,6 +14,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,16 +25,70 @@ const Register = () => {
     setFormData({ ...formData, role });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    setError("");
+    setLoading(true);
+
+    // Validation
+    if (!formData.name || !formData.email || !formData.password) {
+      setError("All fields are required");
+      setLoading(false);
       return;
     }
-    setError("");
-    // TODO: API call to register
-    console.log("Register:", formData);
-    navigate(formData.role === "artist" ? "/artist/dashboard" : "/");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.toLowerCase().trim(),
+          password: formData.password,
+          role: formData.role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      // SUCCESS! Save token and auto-login
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("Registered as:", data.user.name, "Role:", data.user.role);
+
+      // Redirect based on role
+      if (data.user.role === "artist") {
+        navigate("/dashboard");
+      } else if (data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+      console.error("Register error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,8 +105,8 @@ const Register = () => {
             onClick={() => handleRoleChange("user")}
             className={`flex items-center gap-2 px-5 py-2 rounded-full transition ${
               formData.role === "user"
-                ? "bg-purple-600 text-white"
-                : "bg-black/40 text-gray-400 border border-gray-700"
+                ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
+                : "bg-black/40 text-gray-400 border border-gray-700 hover:border-purple-500"
             }`}
           >
             <FaUser /> Listener
@@ -61,13 +116,20 @@ const Register = () => {
             onClick={() => handleRoleChange("artist")}
             className={`flex items-center gap-2 px-5 py-2 rounded-full transition ${
               formData.role === "artist"
-                ? "bg-purple-600 text-white"
-                : "bg-black/40 text-gray-400 border border-gray-700"
+                ? "bg-purple-600 text-white shadow-lg"
+                : "bg-black/40 text-gray-400 border border-gray-700 hover:border-purple-500"
             }`}
           >
             <FaMusic /> Artist
           </button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-900/70 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg text-center mb-6 animate-pulse">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
@@ -113,7 +175,7 @@ const Register = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400"
+              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400 transition"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -134,23 +196,19 @@ const Register = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400"
+              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400 transition"
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-
-          {/* Signup Button */}
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:purple-700 text-white font-bold py-3 rounded-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
@@ -175,8 +233,8 @@ const Register = () => {
         <p className="text-center mt-6 text-sm text-gray-400">
           Already have an account?{" "}
           <Link
-            to="/login"
-            className="text-purple-400 hover:text-purple-300 font-semibold"
+            to="/"
+            className="text-purple-400 hover:text-purple-300 font-semibold transition"
           >
             Login
           </Link>

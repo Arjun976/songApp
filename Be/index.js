@@ -1,0 +1,45 @@
+// index.js  (or server.js)
+const express = require("express");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const morgan = require("morgan");
+
+// Load environment variables first
+dotenv.config();
+
+const app = express();
+
+// Middleware
+app.use(cors());                    // Allow frontend to connect
+app.use(morgan("dev"));             // Log requests in console
+app.use(express.json());            // Parse JSON bodies
+
+// Routes (will be created one by one)
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/songs", require("./routes/songs"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/playlists", require("./routes/playlists"));
+app.use("/api/payments", require("./routes/payments"));
+app.use("/api/admin", require("./routes/admin"));
+
+// Optional: Simple test route
+app.get("/", (req, res) => {
+  res.json({ message: "VibeFlow API is running!" });
+});
+
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected successfully!"))
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+    process.exit(1); // Stop server if DB fails
+  });
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Test it: http://localhost:${PORT}`);
+});

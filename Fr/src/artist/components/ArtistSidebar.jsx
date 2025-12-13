@@ -5,11 +5,11 @@ import { FaHome, FaUpload, FaMusic, FaDollarSign, FaCog } from "react-icons/fa";
 
 const ArtistSidebar = () => {
   const links = [
-    { to: "/artist", icon: FaHome, label: "Dashboard" },
-    { to: "/artist/upload", icon: FaUpload, label: "Upload" },
-    { to: "/artist/songs", icon: FaMusic, label: "My Songs" },
-    { to: "/artist/earnings", icon: FaDollarSign, label: "Earnings" },
-    { to: "/artist/profile", icon: FaCog, label: "Profile" },
+    { to: "/dashboard", icon: FaHome, label: "Dashboard" },
+    { to: "/dashboard/upload", icon: FaUpload, label: "Upload" },
+    { to: "/dashboard/songs", icon: FaMusic, label: "My Songs" },
+    { to: "/dashboard/earnings", icon: FaDollarSign, label: "Earnings" },
+    { to: "/dashboard/profile", icon: FaCog, label: "Profile" },
   ];
 
   return (

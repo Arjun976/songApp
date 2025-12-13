@@ -7,7 +7,7 @@ const Badge = ({ children, variant = "default", size = "sm", className = "" }) =
     purple: "bg-purple-600 text-white",
     green: "bg-green-600 text-white",
     red: "bg-red-600 text-white",
-    premium: "bg-gradient-to-r from-purple-600 to-pink-600 text-white",
+    premium: "bg-purple-600 text-white",
   };
 
   const sizes = {

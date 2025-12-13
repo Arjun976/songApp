@@ -1,19 +1,51 @@
 // pages/Auth/Login.jsx
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext.jsx";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: API call to login
-    console.log("Login:", { email, password });
-    navigate("/");
+    setError("");
+    setLoading(true);
+
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { success, data, error: loginError } = await login({ email, password });
+
+      if (!success) {
+        throw new Error(loginError || "Login failed");
+      }
+
+      console.log("Logged in as:", data.user.name, "Role:", data.user.role);
+
+      // Redirect based on role
+      if (data.user.role === "admin") {
+        navigate("/admin");
+      } else if (data.user.role === "artist") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,6 +54,13 @@ const Login = () => {
         <h1 className="text-3xl font-bold text-center text-gray-300 mb-8">
           Welcome Back
         </h1>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-900/70 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg text-center mb-6 animate-pulse">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
@@ -34,6 +73,7 @@ const Login = () => {
               placeholder="Enter your email"
               className="w-full p-3 rounded-lg bg-black/40 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               required
+              disabled={loading}
             />
           </div>
 
@@ -47,11 +87,12 @@ const Login = () => {
               placeholder="Enter your password"
               className="w-full p-3 pr-12 rounded-lg bg-black/40 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               required
+              disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400"
+              className="absolute right-3 top-10 text-gray-400 hover:text-purple-400 transition"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -60,9 +101,10 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-3 rounded-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
@@ -70,7 +112,7 @@ const Login = () => {
         <div className="text-center mt-4">
           <Link
             to="/forgot-password"
-            className="text-sm text-purple-400 hover:text-purple-300"
+            className="text-sm text-purple-400 hover:text-purple-300 transition"
           >
             Forgot Password?
           </Link>
@@ -98,7 +140,7 @@ const Login = () => {
           Don’t have an account?{" "}
           <Link
             to="/register"
-            className="text-purple-400 hover:text-purple-300 font-semibold"
+            className="text-purple-400 hover:text-purple-300 font-semibold transition"
           >
             Sign up
           </Link>

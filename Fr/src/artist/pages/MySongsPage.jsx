@@ -1,14 +1,33 @@
 // artist/pages/MySongsPage.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ArtistSongTable from "../components/ArtistSongTable";
 import Button from "../../components/ui/Button";
+import { getMySongs } from "../../api/admin";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const MySongsPage = () => {
-  const songs = [
-    { _id: 1, title: "Midnight Dreams", plays: 128450, downloads: 892, earnings: 1784, uploadedAt: new Date() },
-    { _id: 2, title: "Neon Lights", plays: 98700, downloads: 620, earnings: 1240, uploadedAt: new Date() },
-    { _id: 3, title: "Echoes", plays: 45000, downloads: 310, earnings: 620, uploadedAt: new Date() },
-  ];
+  const [songs, setSongs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSongs = async () => {
+      try {
+        const fetchedSongs = await getMySongs();
+        setSongs(fetchedSongs);
+      } catch (err) {
+        setError("Failed to fetch songs.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSongs();
+  }, []);
+
+  if (loading) return <div className="flex justify-center items-center h-screen"><LoadingSpinner /></div>;
+  if (error) return <div className="text-red-500 text-center mt-8">{error}</div>;
 
   return (
     <div className="min-h-screen bg-black text-white p-6">

@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { FaUpload, FaMusic, FaImage } from "react-icons/fa";
+import { uploadSong } from "../../api/admin"; // Import the uploadSong API call
+import Toast from "../../components/common/Toast";
+
 
 const UploadSongForm = ({ onSuccess }) => {
   const [form, setForm] = useState({
@@ -11,19 +14,35 @@ const UploadSongForm = ({ onSuccess }) => {
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploading(true);
-    // Simulate upload
-    setTimeout(() => {
-      setUploading(false);
+    setToast(null);
+
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("genre", form.genre);
+    formData.append("isPremium", form.isPremium);
+    formData.append("price", form.price);
+    formData.append("audio", audioFile);
+    formData.append("cover", coverFile);
+
+    try {
+      await uploadSong(formData);
       onSuccess?.();
-    }, 2000);
+    } catch (error) {
+      console.error("Upload error:", error);
+      setToast({ message: error.response?.data?.message || "Upload failed", type: "error" });
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Audio Upload */}
         <div className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:border-purple-500 transition">

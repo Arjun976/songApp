@@ -23,7 +23,7 @@ const ArtistDashboard = () => {
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-6 my-8">
           <Link to="/artist/upload">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-8 text-center hover:scale-105 transition">
+            <div className="bg-purple-600  rounded-xl p-8 text-center hover:scale-105 transition">
               <h3 className="text-2xl font-bold text-white">Upload New Song</h3>
               <p className="text-white/80 mt-2">Share your latest track</p>
             </div>
