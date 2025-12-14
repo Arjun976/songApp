@@ -48,3 +48,23 @@ export const searchSongs = async (query) => {
   const response = await axios.get(`http://localhost:5000/api/songs/search?q=${query}`);
   return response.data;
 };
+
+export const banUser = async (userId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(`${API_URL}/users/${userId}/ban`, {}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const deleteUser = async (userId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.delete(`${API_URL}/users/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};

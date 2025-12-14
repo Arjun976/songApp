@@ -26,3 +26,19 @@ export const getFavoriteSongs = async () => {
   const res = await axios.get(`${API_URL}/favorites`, getAuthHeaders());
   return res.data;
 };
+
+export const updateUserProfile = async (formData) => {
+  try {
+    const { headers } = getAuthHeaders();
+    const res = await axios.put(`${API_URL}/profile`, formData, {
+      headers: {
+        ...headers,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    throw error;
+  }
+};

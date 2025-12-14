@@ -61,7 +61,40 @@ exports.getFavoriteSongs = async (req, res) => {
       },
     });
     res.json(user.favorites);
-  } catch (error) {
+  } catch (error)_
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, bio } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.name = name || user.name;
+    user.bio = bio || user.bio;
+
+    if (req.file) {
+      user.profilePicture = req.file.path;
+    }
+
+    await user.save();
+
+    // It's good practice to not send the password back, even if it's hashed.
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.json(userResponse);
+  } catch (error) {
+    console.error('Update Profile Error:', error.stack || error);
+    res.status(500).json({ 
+      message: "Server error during profile update.",
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };

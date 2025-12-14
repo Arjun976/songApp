@@ -2,10 +2,14 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const { getProfile, getUserStats, toggleFavorite, getFavoriteSongs } = require("../controllers/userController");
+const { upload } = require("../utils/cloudinary");
+const { getProfile, getUserStats, toggleFavorite, getFavoriteSongs, updateProfile } = require("../controllers/userController");
 
 // GET /api/users/profile → get logged-in user info
 router.get("/profile", auth, getProfile);
+
+// PUT /api/users/profile → update user profile
+router.put("/profile", auth, upload.single("profilePicture"), updateProfile);
 
 // GET /api/users/stats → get user stats
 router.get("/stats", auth, getUserStats);

@@ -102,3 +102,25 @@ exports.search = async (req, res) => {
     res.status(500).json({ message: "Search failed" });
   }
 };
+
+exports.deleteSong = async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+
+    if (!song) {
+      return res.status(404).json({ message: "Song not found" });
+    }
+
+    // Optional: Delete from Cloudinary as well
+    // const publicId = song.audioUrl.split("/").pop().split(".")[0];
+    // await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+    // ... same for cover
+
+    await song.deleteOne();
+
+    res.json({ message: "Song deleted successfully" });
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

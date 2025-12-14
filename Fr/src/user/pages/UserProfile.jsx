@@ -1,20 +1,32 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FaEdit, FaDownload, FaMusic, FaHeart } from "react-icons/fa";
+import { FaEdit, FaDownload, FaMusic, FaHeart, FaSave, FaTimes } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { AuthContext } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { getUserStats } from "../../api/users";
+import { getUserStats, updateUserProfile } from "../../api/users";
+import Input from "../../components/ui/Input";
 
 const UserProfile = () => {
-  const { user, loading: authLoading } = useContext(AuthContext);
+  const { user, updateUser, loading: authLoading } = useContext(AuthContext);
   const [stats, setStats] = useState({
     playlists: 0,
     downloads: 0,
     favorites: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({ name: "", bio: "" });
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({ name: user.name, bio: user.bio || "" });
+      setPreview(user.profilePicture);
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -35,6 +47,45 @@ const UserProfile = () => {
     }
   }, [user]);
 
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing) {
+      setFormData({ name: user.name, bio: user.bio || "" });
+      setPreview(user.profilePicture);
+      setFile(null);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  const handleSave = async () => {
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("bio", formData.bio);
+    if (file) {
+      data.append("profilePicture", file);
+    }
+
+    try {
+      const updatedUser = await updateUserProfile(data);
+      updateUser(updatedUser);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update profile", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+
   if (authLoading || loading) {
     return <LoadingSpinner />;
   }
@@ -48,13 +99,47 @@ const UserProfile = () => {
       <div className="max-w-4xl mx-auto px-4 py-10">
         <Card>
           <div className="flex items-center gap-6">
-            <Avatar src={user.avatar || "/api/placeholder/100/100"} alt={user.name} size="lg" />
+            <div className="relative w-16 h-16">
+              <Avatar src={preview || "/api/placeholder/100/100"} alt={user.name} size="lg" />
+              {isEditing && (
+                <div className="absolute bottom-0 right-0">
+                  <input type="file" id="profilePicture" className="hidden" onChange={handleFileChange} accept="image/*"/>
+                  <label htmlFor="profilePicture" className="bg-gray-800 p-2 rounded-full cursor-pointer hover:bg-gray-700">
+                    <FaEdit/>
+                  </label>
+                </div>
+              )}
+            </div>
             <div>
-              <h1 className="text-3xl font-bold">{user.name}</h1>
-              <p className="text-gray-400">{user.email}</p>
-              <Button variant="ghost" size="sm" className="mt-2">
-                <FaEdit className="mr-1" /> Edit Profile
-              </Button>
+              {isEditing ? (
+                <div className="space-y-4">
+                  <Input name="name" value={formData.name} onChange={handleChange} className="text-black"/>
+                  <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Your bio" className="w-full bg-gray-800 text-white rounded p-2" />
+                </div>
+              ) : (
+                <div>
+                  <h1 className="text-3xl font-bold">{user.name}</h1>
+                  <p className="text-gray-400">{user.email}</p>
+                  <p className="text-gray-300 mt-2">{user.bio || "No bio yet."}</p>
+                </div>
+              )}
+               <div className="mt-4 flex gap-2">
+
+                {isEditing ? (
+                  <>
+                    <Button onClick={handleSave} size="sm" >
+                      <FaSave className="mr-1" /> Save Changes
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={handleEditToggle}>
+                      <FaTimes className="mr-1" /> Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={handleEditToggle}>
+                    <FaEdit className="mr-1" /> Edit Profile
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 

@@ -34,20 +34,30 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Song"
     }],
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
 
 // THIS IS THE MOST IMPORTANT PART — HASH PASSWORD
-userSchema.pre("save", async function () {
-  // Only hash if password is new or modified
-  if (!this.isModified("password")) return;
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
 
   try {
     const salt = await bcryptjs.genSalt(12);
     this.password = await bcryptjs.hash(this.password, salt);
+    next();
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 

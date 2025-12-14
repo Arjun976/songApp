@@ -55,11 +55,11 @@ const SongTable = ({ songs = [], onDelete }) => {
                   {song.plays?.toLocaleString() || 0}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-400">
-                  {new Date(song.uploadedAt).toLocaleDateString()}
+                  {new Date(song.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button
-                    onClick={() => onDelete(song._id, song.title)}
+                    onClick={() => onDelete(song._id)}
                     className="text-red-400 hover:text-red-300 transition"
                     title="Delete Song"
                   >

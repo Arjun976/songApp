@@ -1,52 +1,84 @@
-// artist/pages/ArtistProfilePage.jsx
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Avatar from "../../components/ui/Avatar";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import { AuthContext } from "../../context/AuthContext";
+import { updateUserProfile } from "../../api/users";
+import { FaEdit } from "react-icons/fa";
 
 const ArtistProfilePage = () => {
+  const { user, updateUser } = useContext(AuthContext);
+  const [formData, setFormData] = useState({ name: "", bio: "" });
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({ name: user.name, bio: user.bio || "" });
+      setPreview(user.profilePicture);
+    }
+  }, [user]);
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  const handleSave = async () => {
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("bio", formData.bio);
+    if (file) {
+      data.append("profilePicture", file);
+    }
+
+    try {
+      const updatedUser = await updateUserProfile(data);
+      updateUser(updatedUser);
+      // Maybe show a success toast
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      // Maybe show an error toast
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-purple-400">Artist Profile</h1>
+      <div className="max-w-lg mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-purple-400 text-center">Edit Profile</h1>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Left: Avatar + Stats */}
-          <div className="md:col-span-1">
-            <div className="bg-gray-900/60 backdrop-blur-xl rounded-xl border border-gray-700/50 p-6 text-center">
-              <Avatar src="/artist.jpg" alt="Luna Echo" size="lg" />
-              <h2 className="text-2xl font-bold mt-4">Luna Echo</h2>
-              <p className="text-gray-400">Electronic • Synthwave</p>
-              <Button className="mt-6 w-full">Edit Profile</Button>
-            </div>
-
-            <div className="mt-6 bg-gray-900/60 backdrop-blur-xl rounded-xl border border-gray-700/50 p-6">
-              <h3 className="font-semibold mb-4">Stats</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Total Songs</span>
-                  <span className="text-purple-400">24</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Followers</span>
-                  <span className="text-purple-400">89.2K</span>
-                </div>
+        <div className="bg-gray-900/60 backdrop-blur-xl rounded-xl border border-gray-700/50 p-8">
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <Avatar src={preview || "/api/placeholder/128/128"} alt={formData.name} size="xl" />
+            <div className="absolute bottom-0 right-0">
+                <input type="file" id="profilePicture" className="hidden" onChange={handleFileChange} accept="image/*"/>
+                <label htmlFor="profilePicture" className="bg-gray-800 p-2 rounded-full cursor-pointer hover:bg-gray-700">
+                  <FaEdit/>
+                </label>
               </div>
-            </div>
           </div>
 
-          {/* Right: Edit Form */}
-          <div className="md:col-span-2">
-            <div className="bg-gray-900/60 backdrop-blur-xl rounded-xl border border-gray-700/50 p-8">
-              <h3 className="text-xl font-semibold mb-6">Edit Details</h3>
-              <div className="space-y-6">
-                <Input label="Artist Name" defaultValue="Luna Echo" />
-                <Input label="Bio" placeholder="Tell your story..." />
-                <Input label="Instagram" placeholder="@luna_echo" />
-                <Input label="Spotify" placeholder="spotify.com/artist/..." />
-                <Button className="w-full">Save Changes</Button>
-              </div>
-            </div>
+          <div className="space-y-6">
+            <Input label="Artist Name" name="name" value={formData.name} onChange={handleChange} className="text-black"/>
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              placeholder="Tell your story..."
+              className="w-full bg-gray-800 text-white rounded p-2 h-32"
+            />
+            <Button onClick={handleSave} className="w-full">Save Changes</Button>
           </div>
         </div>
       </div>

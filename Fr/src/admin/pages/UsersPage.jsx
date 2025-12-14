@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import UserTable from "../components/UserTable";
 import Button from "../../components/ui/Button";
-import { getAllUsers } from "../../api/admin"; // Assuming you create this API function
+import { getAllUsers, banUser, deleteUser } from "../../api/admin";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const UsersPage = () => {
@@ -26,17 +26,35 @@ const UsersPage = () => {
     fetchUsers();
   }, []);
 
-  const handleBan = (id) => {
-    // Note: This is an optimistic update.
-    // In a real app, you'd call an API to ban the user and then update the state.
-    setUsers(users.map(u => u._id === id ? { ...u, isBanned: !u.isBanned } : u));
+  const handleBan = async (id) => {
+    const userToBan = users.find(u => u._id === id);
+    if (userToBan && userToBan.role === 'admin') {
+      alert("Admins cannot be banned.");
+      return;
+    }
+    try {
+      await banUser(id);
+      setUsers(users.map(u => u._id === id ? { ...u, isBanned: !u.isBanned } : u));
+    } catch (err) {
+      setError("Failed to update user status.");
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id) => {
-    // Note: This is an optimistic update.
-    // In a real app, you'd call an API to delete the user.
+  const handleDelete = async (id) => {
+    const userToDelete = users.find(u => u._id === id);
+    if (userToDelete && userToDelete.role === 'admin') {
+      alert("Admins cannot be deleted.");
+      return;
+    }
     if (window.confirm("Are you sure you want to permanently delete this user?")) {
-      setUsers(users.filter(u => u._id !== id));
+      try {
+        await deleteUser(id);
+        setUsers(users.filter(u => u._id !== id));
+      } catch (err) {
+        setError("Failed to delete user.");
+        console.error(err);
+      }
     }
   };
 

@@ -16,3 +16,14 @@ export const search = async (query) => {
   });
   return response.data; // Should return { songs: [], artists: [] }
 };
+
+export const deleteSong = async (songId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.delete(`${API_URL}/${songId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
