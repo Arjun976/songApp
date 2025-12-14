@@ -47,17 +47,17 @@ const userSchema = new mongoose.Schema(
 );
 
 // THIS IS THE MOST IMPORTANT PART — HASH PASSWORD
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
+  // Only hash if password is new or modified
   if (!this.isModified("password")) {
-    return next();
+    return; // Mongoose will proceed automatically for async hooks
   }
 
   try {
     const salt = await bcryptjs.genSalt(12);
     this.password = await bcryptjs.hash(this.password, salt);
-    next();
   } catch (error) {
-    next(error);
+    throw error; // Mongoose will catch this error
   }
 });
 

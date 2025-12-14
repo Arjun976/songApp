@@ -12,6 +12,7 @@ const api = axios.create({
 
 // Helper to save user + token
 const saveUserData = (data) => {
+  console.log('Saving user data:', data);
   if (data.token && data.user) {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));

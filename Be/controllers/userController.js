@@ -3,11 +3,16 @@ const User = require("../models/User");
 const Playlist = require("../models/Playlist");
 
 exports.getProfile = async (req, res) => {
+  console.log('Get Profile Request User ID:', req.user.id);
   try {
     const user = await User.findById(req.user.id).select("-password");
+    console.log('Get Profile User:', user);
     res.json(user);
+    
   } catch (error) {
+      console.error('Get Profile Error:', error.stack || error);
     res.status(500).json({ message: "Server error" });
+  
   }
 };
 
@@ -61,12 +66,13 @@ exports.getFavoriteSongs = async (req, res) => {
       },
     });
     res.json(user.favorites);
-  } catch (error)_
+  } catch (error) { // <-- This is the corrected line
     res.status(500).json({ message: "Server error" });
   }
 };
 
 exports.updateProfile = async (req, res) => {
+  console.log('Update Profile Request Body:', req.body);
   try {
     const { name, bio } = req.body;
     const user = await User.findById(req.user.id);
@@ -81,7 +87,11 @@ exports.updateProfile = async (req, res) => {
     if (req.file) {
       user.profilePicture = req.file.path;
     }
-
+   console.log('Updating User Profile:', {
+      name: user.name,
+      bio: user.bio,
+      profilePicture: user.profilePicture,
+    });
     await user.save();
 
     // It's good practice to not send the password back, even if it's hashed.
@@ -90,7 +100,7 @@ exports.updateProfile = async (req, res) => {
 
     res.json(userResponse);
   } catch (error) {
-    console.error('Update Profile Error:', error.stack || error);
+    console.error('Update Profile Error:', error);
     res.status(500).json({ 
       message: "Server error during profile update.",
       error: error.message,

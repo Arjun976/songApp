@@ -28,6 +28,7 @@ export const getFavoriteSongs = async () => {
 };
 
 export const updateUserProfile = async (formData) => {
+  console.log('Updating user profile with data:', formData);
   try {
     const { headers } = getAuthHeaders();
     const res = await axios.put(`${API_URL}/profile`, formData, {

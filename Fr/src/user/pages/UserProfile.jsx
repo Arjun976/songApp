@@ -20,8 +20,10 @@ const UserProfile = () => {
   const [formData, setFormData] = useState({ name: "", bio: "" });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  console.log('UserProfile Rendered with user:', user);
 
   useEffect(() => {
+
     if (user) {
       setFormData({ name: user.name, bio: user.bio || "" });
       setPreview(user.profilePicture);
@@ -66,10 +68,16 @@ const UserProfile = () => {
 
   const handleSave = async () => {
     const data = new FormData();
+    
     data.append("name", formData.name);
     data.append("bio", formData.bio);
     if (file) {
       data.append("profilePicture", file);
+    }
+
+    // Log FormData contents for debugging
+    for (let [key, value] of data.entries()) {
+      console.log(`${key}: ${value}`);
     }
 
     try {
