@@ -4,8 +4,14 @@ import ArtistStats from "../components/ArtistStats";
 import EarningsCard from "../components/EarningsCard";
 import ArtistSongTable from "../components/ArtistSongTable";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+
+
 
 const ArtistDashboard = () => {
+
+
+  const { user } = React.useContext(AuthContext);
   const recentSongs = [
     { _id: 1, title: "Midnight Dreams", plays: 128450, downloads: 892, earnings: 1784, uploadedAt: new Date() },
     { _id: 2, title: "Neon Lights", plays: 98700, downloads: 620, earnings: 1240, uploadedAt: new Date() },
@@ -14,7 +20,7 @@ const ArtistDashboard = () => {
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2 text-purple-400">Welcome back, Luna Echo!</h1>
+        <h1 className="text-3xl font-bold mb-2 text-purple-400">Welcome back, {user.name}!</h1>
         <p className="text-gray-400 mb-8">Here's how your music is performing</p>
 
         {/* Stats */}

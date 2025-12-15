@@ -10,8 +10,9 @@ const DownloadButton = ({ song, size = "md" }) => {
   if (!song.isPremium) {
     return (
       <a
-        href={song.audioUrl}
-        download
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`http://localhost:5000/api/songs/${song._id}/download`}
         className="text-green-400 hover:text-green-300"
       >
         <FaDownload />
@@ -27,8 +28,9 @@ const DownloadButton = ({ song, size = "md" }) => {
         onClick={() => setShowModal(true)}
         className="flex items-center gap-1"
       >
-        <FaLock /> ${song.price / 100}
+        <FaLock /> ${(song.price / 100).toFixed(2)}
       </Button>
+
       <PaymentModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -37,5 +39,6 @@ const DownloadButton = ({ song, size = "md" }) => {
     </>
   );
 };
+
 
 export default DownloadButton;

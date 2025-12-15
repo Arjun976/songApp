@@ -4,6 +4,7 @@ const User = require("../models/User");
 
 const auth = async (req, res, next) => {
   try {
+    
     const authHeader = req.header("Authorization");
     
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -18,8 +19,10 @@ const auth = async (req, res, next) => {
     if (user.isBanned) return res.status(403).json({ message: "Account banned" });
 
     req.user = user;
+    console.log("Authenticated user:", req.user);
     next();
   } catch (error) {
+    console.error("Auth middleware error:", error);
     res.status(401).json({ message: "Token is not valid" });
   }
 };

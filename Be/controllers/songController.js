@@ -1,6 +1,97 @@
 // controllers/songController.js
 const Song = require("../models/Song");
 const User = require("../models/User");
+const Comment = require("../models/Comment");
+
+exports.addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const songId = req.params.id;
+    const userId = req.user.id;
+
+    if (!text) {
+      return res.status(400).json({ message: "Comment text is required." });
+    }
+
+    // 1. Create the new comment
+    const newComment = new Comment({
+      text,
+      user: userId,
+      song: songId,
+    });
+    await newComment.save();
+
+    // 2. Add the comment reference to the song
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({ message: "Song not found." });
+    }
+    song.comments.unshift(newComment._id);
+    await song.save();
+
+    // 3. Populate user details for the response
+    const populatedComment = await Comment.findById(newComment._id).populate("user", "name avatar");
+
+    res.status(201).json(populatedComment);
+
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Server error while adding comment." });
+  }
+};
+
+exports.rateSong = async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const songId = req.params.id;
+    const userId = req.user.id;
+
+    console.log(`--- Rating attempt: user ${userId} rates song ${songId} with ${rating} stars ---`);
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "A rating between 1 and 5 is required." });
+    }
+
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({ message: "Song not found." });
+    }
+
+    console.log("--- Song found. Ratings before update:", JSON.stringify(song.ratings));
+
+    const existingRatingIndex = song.ratings.findIndex(r => r.user.toString() === userId);
+
+    if (existingRatingIndex > -1) {
+      console.log("--- User has an existing rating. Updating it.");
+      song.ratings[existingRatingIndex].value = rating;
+    } else {
+      console.log("--- No existing rating found for user. Adding new one.");
+      song.ratings.push({ user: userId, value: rating });
+    }
+
+    console.log("--- Ratings after update:", JSON.stringify(song.ratings));
+
+    const totalRating = song.ratings.reduce((acc, r) => acc + r.value, 0);
+    const newAverage = totalRating / song.ratings.length;
+    song.averageRating = parseFloat(newAverage.toFixed(2));
+
+    console.log(`--- Recalculated average rating: ${song.averageRating}. Attempting to save...`);
+
+    const savedSong = await song.save();
+
+    console.log("--- Song saved successfully! New average:", savedSong.averageRating);
+
+    res.status(200).json({
+      message: "Rating saved successfully.",
+      averageRating: savedSong.averageRating
+    });
+
+  } catch (error) {
+    console.error("---!!! ERROR in rateSong controller !!!---");
+    console.error(error);
+    res.status(500).json({ message: "Server error while rating song." });
+  }
+};
 
 exports.uploadSong = async (req, res) => {
   console.log("--- ENTERING UPLOADSONG CONTROLLER ---");
@@ -48,6 +139,7 @@ exports.uploadSong = async (req, res) => {
       isPremium: isPremiumBool,
       price: finalPrice,
     });
+    console.log(song);
 
     // Send response
     res.status(201).json({
@@ -126,6 +218,32 @@ exports.search = async (req, res) => {
   }
 };
 
+exports.getSongById = async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id)
+      .populate("artist", "name avatar") // Also get artist avatar
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "name avatar", // Get commenter's details
+        },
+        options: { sort: { createdAt: -1 } }, // Sort comments newest first
+      });
+
+    if (!song) {
+      return res.status(404).json({ message: "Song not found" });
+    }
+    res.json(song);
+  } catch (error) {
+    console.error(`Error fetching song with id ${req.params.id}:`, error);
+    if (error.kind === 'ObjectId') {
+        return res.status(400).json({ message: 'Invalid song ID format' });
+    }
+    res.status(500).json({ message: "Server error while fetching song." });
+  }
+};
+
 exports.deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
@@ -145,5 +263,33 @@ exports.deleteSong = async (req, res) => {
   } catch (error) {
     console.error("Delete error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.downloadSong = async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+
+    if (!song) {
+      return res.status(404).json({ message: "Song not found" });
+    }
+
+    // Premium protection (temporary — Stripe later)
+    if (song.isPremium) {
+      return res.status(403).json({
+        message: "This is a premium song. Please purchase to download.",
+      });
+    }
+
+    // Increment download count
+    song.downloads += 1;
+    await song.save();
+
+    // Redirect to Cloudinary audio file
+    return res.redirect(song.audioUrl);
+
+  } catch (error) {
+    console.error("Download error:", error);
+    res.status(500).json({ message: "Download failed" });
   }
 };

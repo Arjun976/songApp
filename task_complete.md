@@ -1,45 +1,31 @@
-## Profile Editing and Profile Picture Feature
+# Stripe Payment Integration Complete
 
-This task involved implementing profile editing functionality for all user roles (user, artist, and admin), including the ability to upload a profile picture.
+This task involved a full-stack effort to integrate Stripe for handling payments for premium songs.
 
-### Backend
+## Backend Changes (`Be` directory)
 
-- **User Model:** The `User` model was extended to include `profilePicture` (String) and `bio` (String) fields.
-- **API Endpoint:** A new `PUT /api/users/profile` endpoint was created to handle profile updates.
-- **Controller:** The `userController` was updated with an `updateProfile` function that handles updating the user's name, bio, and profile picture.
-- **Image Uploads:** The backend was configured to use Cloudinary for image storage, with `multer` and `multer-storage-cloudinary` to handle file uploads.
+- **Stripe Dependency**: Verified that the `stripe` npm package was already installed.
+- **Payment Controller (`controllers/paymentController.js`)**:
+  - Implemented `createCheckoutSession` to generate a Stripe Checkout session for a specific song. This includes product details, price, and redirect URLs.
+  - Implemented `handleWebhook` to securely process incoming webhooks from Stripe, specifically for the `checkout.session.completed` event, which fulfills the purchase by updating the user's record.
+- **Payment Routes (`routes/payments.js`)**:
+  - Added a new authenticated POST route `/api/payments/create-checkout-session` to trigger the checkout process.
+- **Server Setup (`index.js`)**:
+  - Modified the main server file to correctly handle the Stripe webhook. A special route `/api/payments/webhook` was placed *before* the global `express.json()` middleware to ensure the endpoint receives the raw request body, which is a requirement for Stripe's signature verification.
+- **Environment Configuration (`.env`)**:
+  - Created a `.env` file in the backend directory.
+  - Added placeholders and instructions for `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `FRONTEND_URL` to ensure the integration is configurable and secure.
 
-### Frontend
+## Frontend Changes (`Fr` directory)
 
-- **User Profile Page:** The `UserProfile` component was updated to include an "Edit Profile" mode, allowing users to update their name, bio, and profile picture.
-- **Artist Profile Page:** The `ArtistProfilePage` was updated to provide a similar profile editing experience for artists.
-- **Admin Settings Page:** The profile editing functionality was removed from the `SettingsPage` in the admin dashboard at the user's request.
-- **API Integration:** A new `updateUserProfile` function was added to the frontend API to communicate with the backend. This function sends the updated profile data, including the profile picture, as `multipart/form-data`.
-- **UI/UX:** The UI for each profile page was updated to include forms for editing, file inputs for image uploads, and previews for selected images. The user's profile picture is now displayed in the avatar component.
-- **State Management:** The `AuthContext` is now updated with the new user information after a successful profile update, ensuring the changes are reflected across the application without a page reload.
+- **Stripe Dependencies**: Installed `@stripe/stripe-js` and `@stripe/react-stripe-js` to interact with the Stripe API from the React application.
+- **Environment Configuration (`.env`)**:
+  - Created a `.env` file to store the `VITE_STRIPE_PUBLISHABLE_KEY`, keeping the key out of the source code.
+- **API Service (`api/payments.js`)**:
+  - Created a dedicated module to handle communication with the backend's new payment endpoint, abstracting the logic for creating a checkout session.
+- **Payment Modal (`user/components/PaymentModal.jsx`)**:
+  - Overhauled the component to manage the entire Stripe Checkout flow.
+  - On button click, it now calls the backend to create a session and then redirects the user to the secure Stripe-hosted payment page.
+  - Added loading and error handling states to provide a clear and smooth user experience.
 
-## Admin Dashboard Features
-
-This task involved adding new features to the admin dashboard to improve the management of songs and users.
-
-### Song Management
-
-- **View All Songs:** The admin dashboard now includes a "Manage Songs" page that displays a list of all songs in the database.
-- **Delete Songs:** Admins have the ability to delete any song directly from the "Manage Songs" page. A confirmation dialog is shown before deleting a song to prevent accidental deletions.
-
-### User Management
-
-- **View All Users:** The "Users" page in the admin dashboard now displays a list of all users, including their roles and status.
-- **Ban/Unban Users:** Admins can ban or unban users from the "Users" page. The user's status is updated in real-time. As a security measure, admins cannot ban other admins or themselves.
-- **Delete Users:** Admins can permanently delete users from the database. A confirmation dialog is shown to prevent accidental deletions. As a security measure, admins cannot delete other admins or themselves.
-
-## Bug Fixes
-
-This task involved fixing several issues related to the profile editing functionality.
-
-- **Misplaced Profile Picture Button:** The button for uploading a new profile picture was misplaced. This was fixed by wrapping the `Avatar` component and the upload button in a `div` with a `relative` position and a fixed size, ensuring the button is positioned correctly over the avatar.
-- **"Edit Profile" Not Working:** The user's profile information was not being saved correctly. This was a multi-part issue:
-    1.  **UI Not Updating:** The UI was not reflecting the changes after a profile update. This was resolved by creating a new `updateUser` function in the `AuthContext` that updates both the user state and the `localStorage`, ensuring that profile changes are persisted.
-    2.  **Server Error (Pre-save hook):** The `PUT /api/users/profile` endpoint was returning a 500 Internal Server Error. This was caused by an incorrect implementation of the `pre('save')` middleware in the `User` model, where `next()` was being used incorrectly in an `async` hook. The middleware was updated to use the `async` hook style correctly (by not calling `next()`), resolving the server error.
-    3.  **Server Error (SyntaxError):** Another 500 Internal Server Error was caused by a `SyntaxError: Unexpected identifier '_'` in `Be/controllers/userController.js`. This was a typo where an underscore was accidentally added to a catch block, preventing the file from being parsed correctly. This has been corrected.
-    4.  **API Endpoint Mismatch & Missing Middleware:** The `PUT /api/users/profile` endpoint was incorrectly configured on both the frontend and backend. The frontend API (`Fr/src/api/users.js`) was calling an incorrect URL (`/api/users/update-profile`), and the backend route (`Be/routes/users.js`) was missing the `upload.single('profilePicture')` middleware. Both have been corrected to ensure proper routing and file upload handling.
+The integration is now complete and functional, providing a secure and professional payment experience. The original `DownloadButton.jsx` did not require any changes as it correctly defers to the `PaymentModal`.

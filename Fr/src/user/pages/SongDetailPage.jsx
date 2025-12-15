@@ -1,5 +1,5 @@
 // user/pages/SongDetailPage.jsx
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlay, FaHeart, FaShare } from "react-icons/fa";
 import RatingStars from "../components/RatingStars";
@@ -7,32 +7,94 @@ import CommentSection from "../components/CommentSection";
 import DownloadButton from "../components/DownloadButton";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+import { getSongById, addComment, rateSong } from "../../api/songs";
+import { useMusic } from "../../context/MusicContext";
+import { AuthContext } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const SongDetailPage = () => {
   const { id } = useParams();
-  const song = {
-    _id: id,
-    title: "Midnight Dreams",
-    artist: { name: "Luna Echo" },
-    coverUrl: "/api/placeholder/600/600",
-    genre: "Electronic",
-    duration: "3:45",
-    plays: 128450,
-    averageRating: 4.5,
-    isPremium: true,
-    price: 199,
-    comments: [
-      { _id: 1, user: { name: "Alex", avatar: "/api/placeholder/50/50" }, text: "This is fire!", createdAt: new Date() },
-    ],
+  const { playSong } = useMusic();
+  const { user } = useContext(AuthContext);
+
+  const [song, setSong] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSong = async () => {
+      try {
+        setLoading(true);
+        const fetchedSong = await getSongById(id);
+        setSong(fetchedSong);
+      } catch (err) {
+        setError("Failed to fetch song details. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSong();
+  }, [id]);
+
+  const handleRate = async (rating) => {
+    console.log("--- Rating to submit:", rating);
+    if (!user) {
+      alert("Please log in to rate this song.");
+      return;
+    }
+    try {
+      const updatedSong = await rateSong(song._id, rating);
+      console.log("--- Updated song after rating:", updatedSong);
+      setSong((prev) => ({ ...prev, averageRating: updatedSong.averageRating }));
+      // Optionally show a success toast
+    } catch (err) {
+      console.error("Failed to rate song:", err);
+      // Optionally show an error toast
+    }
   };
 
-  const handleRate = (rating) => {
-    console.log("Rated:", rating);
+  const handleComment = async (text) => {
+    if (!user) {
+      alert("Please log in to comment.");
+      return;
+    }
+    if (!text.trim()) return;
+    try {
+      const newComment = await addComment(song._id, text);
+      setSong((prev) => ({
+        ...prev,
+        comments: [newComment, ...prev.comments],
+      }));
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+      // Optionally show an error toast
+    }
   };
 
-  const handleComment = (text) => {
-    console.log("Comment:", text);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-red-500 text-xl">
+        {error}
+      </div>
+    );
+  }
+
+  if (!song) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white text-xl">
+        Song not found.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -51,11 +113,11 @@ const SongDetailPage = () => {
           <div className="md:col-span-2 space-y-6">
             <div>
               <h1 className="text-4xl font-bold text-white">{song.title}</h1>
-              <p className="text-xl text-purple-400 mt-1">{song.artist.name}</p>
+              <p className="text-xl text-purple-400 mt-1">{song.artist?.name || "Unknown Artist"}</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button size="lg">
+              <Button size="lg" onClick={() => playSong(song)}>
                 <FaPlay className="mr-2" /> Play
               </Button>
               <DownloadButton song={song} />
@@ -74,15 +136,15 @@ const SongDetailPage = () => {
               </div>
               <div>
                 <p className="text-gray-500">Duration</p>
-                <p className="text-purple-400 font-medium">{song.duration}</p>
+                <p className="text-purple-400 font-medium">{song.duration || "N/A"}</p>
               </div>
               <div>
                 <p className="text-gray-500">Plays</p>
-                <p className="text-purple-400 font-medium">{song.plays.toLocaleString()}</p>
+                <p className="text-purple-400 font-medium">{(song.plays || 0).toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-gray-500">Rating</p>
-                <RatingStars rating={song.averageRating} onRate={handleRate} />
+                <RatingStars rating={song.averageRating} onRate={handleRate} disabled={!user} />
               </div>
             </div>
 
@@ -95,7 +157,7 @@ const SongDetailPage = () => {
         {/* Comments */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6 text-purple-400">Comments</h2>
-          <CommentSection comments={song.comments} onSubmit={handleComment} />
+          <CommentSection comments={song.comments || []} onSubmit={handleComment} disabled={!user} />
         </div>
       </div>
     </div>

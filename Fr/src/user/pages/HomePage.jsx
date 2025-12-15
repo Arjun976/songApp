@@ -64,14 +64,9 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero */}
-      <section className="relative h-96 bg-gradient-to-b from-purple-900/40 to-black flex items-center justify-center">
-        <div className="text-center z-10 px-6">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Discover Music</h1>
-          <p className="text-xl text-gray-300 mb-6">Stream free. Download premium.</p>
-          
-          <Link to="/search">
-            <Button size="lg">Explore Now</Button>
-          </Link>
+      <section className="relative h-96  flex items-center justify-center">
+        <div className="text-center z-10 px-2">
+          <h1 className="text-5xl md:text-6xl font-bold ">Discover Music</h1>
         </div>
         <div className="absolute inset-0 bg-black/60" />
       </section>

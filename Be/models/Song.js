@@ -14,13 +14,10 @@ const songSchema = new mongoose.Schema({
   downloads: { type: Number, default: 0 },
   ratings: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    value: { type: Number, min: 1, max: 5 }
+    value: { type: Number, min: 1, max: 5, required: true }
   }],
-  comments: [{
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    text: String,
-    createdAt: { type: Date, default: Date.now }
-  }],
+  averageRating: { type: Number, default: 0 },
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 }, { timestamps: true });
 
 // Auto-upgrade user to "artist" when first song is saved

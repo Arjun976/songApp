@@ -3,7 +3,21 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const role = require("../middleware/role");
-const { uploadSong, getAllSongs, getMySongs, search, deleteSong } = require("../controllers/songController");
+const {
+  uploadSong,
+  getAllSongs,
+  getMySongs,
+  search,
+  deleteSong,
+  getSongById,
+  addComment,
+  rateSong,
+  downloadSong,
+} = require("../controllers/songController");
+
+// routes/songs.js
+router.get("/:id/download", auth, downloadSong);
+
 
 // GET /api/songs/search → public
 router.get("/search", search);
@@ -13,6 +27,15 @@ router.get("/", getAllSongs);
 
 // GET /api/songs/my → only the artist sees their songs
 router.get("/my", auth, getMySongs);
+
+// GET /api/songs/:id → public
+router.get("/:id", getSongById);
+
+// POST /api/songs/:id/comments -> logged-in users
+router.post("/:id/comments", auth, addComment);
+
+// POST /api/songs/:id/rate -> logged-in users
+router.post("/:id/rate", auth, rateSong);
 
 // DELETE /api/songs/:id → admin only
 router.delete("/:id", auth, role("admin"), deleteSong);

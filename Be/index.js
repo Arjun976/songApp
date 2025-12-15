@@ -13,15 +13,16 @@ const app = express();
 // Middleware
 app.use(cors());                    // Allow frontend to connect
 app.use(morgan("dev"));             // Log requests in console
-app.use(express.json());            // Parse JSON bodies
+app.use(express.json());            // Parse JSON bodies for all other routes
 
-// Routes (will be created one by one)
+// Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/songs", require("./routes/songs"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/playlists", require("./routes/playlists"));
 app.use("/api/payments", require("./routes/payments"));
 app.use("/api/admin", require("./routes/admin"));
+
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {

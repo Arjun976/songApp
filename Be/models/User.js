@@ -1,6 +1,6 @@
-// models/User.js  ← THIS IS THE ONLY VERSION THAT WORKS RIGHT NOW
+// models/User.js
 const mongoose = require("mongoose");
-const bcryptjs = require("bcryptjs");   // ← MUST BE bcryptjs
+const bcryptjs = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,6 +34,13 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Song"
     }],
+
+    // ✅ NEW (safe)
+    purchasedSongs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Song",
+    }],
+
     profilePicture: {
       type: String,
       default: "",
@@ -46,22 +53,15 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// THIS IS THE MOST IMPORTANT PART — HASH PASSWORD
+// HASH PASSWORD
 userSchema.pre("save", async function () {
-  // Only hash if password is new or modified
-  if (!this.isModified("password")) {
-    return; // Mongoose will proceed automatically for async hooks
-  }
+  if (!this.isModified("password")) return;
 
-  try {
-    const salt = await bcryptjs.genSalt(12);
-    this.password = await bcryptjs.hash(this.password, salt);
-  } catch (error) {
-    throw error; // Mongoose will catch this error
-  }
+  const salt = await bcryptjs.genSalt(12);
+  this.password = await bcryptjs.hash(this.password, salt);
 });
 
-// Compare password method
+// Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcryptjs.compare(candidatePassword, this.password);
 };

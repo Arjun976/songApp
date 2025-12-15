@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContext";
 
 // Layouts
-import MainLayout from "./components/layout/MainLayout";        // ← NEW: Navbar + user pages
+import MainLayout from "./components/layout/MainLayout";
 import ArtistLayout from "./artist/components/ArtistLayout";
 import AdminLayout from "./admin/components/AdminLayout";
 
@@ -20,8 +20,10 @@ import SearchResultsPage from "./user/pages/SearchResultsPage";
 import UserProfile from "./user/pages/UserProfile";
 import PlaylistsPage from "./user/pages/PlaylistsPage";
 import PlaylistDetailPage from "./user/pages/PlaylistDetailPage";
-import PlayerPage from "./pages/PlayerPage"; // Import PlayerPage
+import PlayerPage from "./pages/PlayerPage";
 import PublicArtistProfilePage from "./user/pages/PublicArtistProfilePage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage"; // Import new page
+import PaymentCancelledPage from "./pages/PaymentCancelledPage"; // Import new page
 
 // Artist Pages
 import ArtistDashboard from "./artist/pages/ArtistDashboard";
@@ -52,6 +54,10 @@ function App() {
           <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
           <Route path="/player" element={<PlayerPage />} /> 
           <Route path="/artist/:id" element={<PublicArtistProfilePage />} />
+          
+          {/* Payment Status Pages */}
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/cancelled" element={<PaymentCancelledPage />} />
         </Route>
 
         {/* ==================== ARTIST PANEL (own sidebar) ==================== */}
