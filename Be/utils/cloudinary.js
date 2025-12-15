@@ -4,22 +4,30 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
 
 // Configure Cloudinary
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (!cloudName || !apiKey || !apiSecret) {
+  console.error("---!!! Cloudinary environment variables missing! Please check your .env file. !!!---");
+  console.error("Required: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET");
+}
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
 });
 
 // Set up storage for multer
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: (req, file) => {
-    // Different folders for audio and images
-    const folder = file.mimetype.startsWith("audio") ? "vibeflow/audio" : "vibeflow/covers";
+  cloudinary,
+  params: async (req, file) => {
+    const isAudio = file.mimetype.startsWith("audio");
+
     return {
-      folder: folder,
-      allowed_formats: file.mimetype.startsWith("audio") ? ["mp3", "wav", "ogg"] : ["jpg", "jpeg", "png", "webp"],
-      resource_type: file.mimetype.startsWith("audio") ? "video" : "image",
+      folder: isAudio ? "vibeflow/audio" : "vibeflow/covers",
+      resource_type: "auto",
       public_id: `${file.fieldname}-${Date.now()}`,
     };
   },

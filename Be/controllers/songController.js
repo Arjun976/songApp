@@ -3,30 +3,50 @@ const Song = require("../models/Song");
 const User = require("../models/User");
 
 exports.uploadSong = async (req, res) => {
+  console.log("--- ENTERING UPLOADSONG CONTROLLER ---");
   try {
     const { title, genre, isPremium, price } = req.body;
 
-    // Get the uploaded files from multer (via Cloudinary)
-    const audioFile = req.files?.["audio"]?.[0];   // audio file
-    const coverFile = req.files?.["cover"]?.[0];   // cover image
-
-    // Validation
-    if (!audioFile) {
-      return res.status(400).json({ message: "Audio file is required" });
+    // Check if user is authenticated and ID is available
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized: User not authenticated or ID missing." });
     }
-    if (!coverFile) {
-      return res.status(400).json({ message: "Cover image is required" });
+
+    const artistId = req.user.id;
+
+    // Get the uploaded files from multer (via Cloudinary)
+    const audioFile = req.files?.["audio"]?.[0];
+    const coverFile = req.files?.["cover"]?.[0];
+
+    // Validation for files
+    if (!audioFile || !audioFile.path) {
+      return res.status(400).json({ message: "Audio file is required or upload failed" });
+    }
+    if (!coverFile || !coverFile.path) {
+      return res.status(400).json({ message: "Cover image is required or upload failed" });
+    }
+
+    // Validate and prepare song data
+    const isPremiumBool = isPremium === "true" || isPremium === true;
+    let finalPrice = 0;
+
+    if (isPremiumBool) {
+      const parsedPrice = parseFloat(price);
+      if (isNaN(parsedPrice) || parsedPrice < 0) {
+        return res.status(400).json({ message: "A valid non-negative price is required for premium songs." });
+      }
+      finalPrice = Math.round(parsedPrice * 100); // Store in cents
     }
 
     // Create the song with real Cloudinary URLs
     const song = await Song.create({
       title,
       genre,
-      artist: req.user.id,
-      audioUrl: audioFile.path,          // Cloudinary URL for audio
-      coverUrl: coverFile.path,          // Cloudinary URL for cover
-      isPremium: isPremium === "true" || isPremium === true,
-      price: isPremium === "true" ? Number(price) * 100 : 0, // in cents
+      artist: artistId,
+      audioUrl: audioFile.path,
+      coverUrl: coverFile.path,
+      isPremium: isPremiumBool,
+      price: finalPrice,
     });
 
     // Send response
@@ -43,8 +63,11 @@ exports.uploadSong = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Upload error:", error);
-    res.status(500).json({ message: "Upload failed", error: error.message });
+    console.log("---!!! ENCOUNTERED ERROR IN UPLOADSONG CATCH BLOCK !!!---");
+    console.log("--- ERROR MESSAGE:", String(error.message));
+    console.log("--- ERROR STACK:", String(error.stack));
+    console.log("--- FULL ERROR:", error);
+    res.status(500).json({ message: "Upload failed", error: error.message || "An unknown error occurred.", stack: error.stack });
   }
 };
 
