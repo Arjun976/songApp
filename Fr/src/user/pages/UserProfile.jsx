@@ -21,7 +21,7 @@ const UserProfile = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   console.log('UserProfile Rendered with user:', user);
-x
+
   useEffect(() => {
 
     if (user) {
