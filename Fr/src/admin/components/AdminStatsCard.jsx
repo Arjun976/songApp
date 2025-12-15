@@ -2,7 +2,8 @@
 import React from "react";
 import { FaUsers, FaMusic, FaDollarSign, FaShoppingCart } from "react-icons/fa";
 
-const AdminStatsCard = ({ icon: Icon, title, value, change, color }) => {
+const AdminStatsCard = ({ icon, title, value, change, color }) => {
+  const IconComponent = icon;
   return (
     <div className="bg-gray-900/60 backdrop-blur-xl rounded-xl border border-gray-700/50 p-6">
       <div className="flex items-center justify-between">
@@ -16,7 +17,7 @@ const AdminStatsCard = ({ icon: Icon, title, value, change, color }) => {
           )}
         </div>
         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${color}`}>
-          <Icon className="text-xl text-white" />
+          <IconComponent className="text-xl text-white" />
         </div>
       </div>
     </div>

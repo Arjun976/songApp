@@ -36,7 +36,7 @@ const loadUser = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);   //Logged-in user object
   const [loading, setLoading] = useState(true);
 
   // On mount: check if user is already logged in

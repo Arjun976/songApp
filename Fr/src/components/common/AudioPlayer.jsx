@@ -19,7 +19,6 @@ const AudioPlayer = () => {
     isPlaying,
     togglePlay,
     isPlayerVisible,
-    setIsPlayerVisible,
     isRepeating,
     toggleRepeat,
   } = useMusic();
@@ -44,7 +43,9 @@ const AudioPlayer = () => {
       // If a new song is loaded, and it's set to play, reset progress
       if (currentSong) {
         audioRef.current.currentTime = 0;
-        setProgress(0);
+        setTimeout(() => {
+          setProgress(0);
+        }, 0);
       }
     }
   }, [volume, currentSong]); // Add currentSong to dependencies for volume effect
@@ -69,7 +70,9 @@ const AudioPlayer = () => {
         audioRef.current.play(); // Play again
       }
     } else {
-      setIsPlaying(false); // Stop playback if not repeating
+      if (isPlaying) {
+        togglePlay();
+      } // Stop playback if not repeating
     }
   };
 

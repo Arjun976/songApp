@@ -1,5 +1,5 @@
 // src/user/components/SongCard.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaPlay, FaHeart, FaPlus, FaDownload } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Badge from "../../components/ui/Badge";
@@ -11,9 +11,24 @@ const SongCard = ({ song, onAddToPlaylist, onFavorite, isFavorited }) => {
   const { playSong } = useMusic();
   const navigate = useNavigate();
 
+  // Local state for immediate visual feedback
+  const [optimisticIsFavorited, setOptimisticIsFavorited] = useState(isFavorited);
+
+  // Synchronize local state with prop when prop changes (e.g., after API response)
+  useEffect(() => {
+    setOptimisticIsFavorited(isFavorited);
+  }, [isFavorited]);
+
   const handlePlay = () => {
     playSong(song);
     navigate("/player");
+  };
+
+  const handleFavoriteClick = () => {
+    // Immediately toggle local state for quick UI feedback
+    setOptimisticIsFavorited(prev => !prev);
+    // Call the parent's onFavorite function
+    onFavorite(song._id);
   };
 
   return (
@@ -58,8 +73,8 @@ const SongCard = ({ song, onAddToPlaylist, onFavorite, isFavorited }) => {
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => onFavorite(song._id)}
-              className={`hover:text-red-400 ${isFavorited ? 'text-red-500' : 'text-gray-400'}`}
+              onClick={handleFavoriteClick}
+              className={`${optimisticIsFavorited ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-400'}`}
             >
               <FaHeart />
             </button>

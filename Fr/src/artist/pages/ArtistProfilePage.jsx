@@ -14,8 +14,10 @@ const ArtistProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      setFormData({ name: user.name, bio: user.bio || "" });
-      setPreview(user.profilePicture);
+      setTimeout(() => {
+        setFormData({ name: user.name, bio: user.bio || "" });
+        setPreview(user.profilePicture);
+      }, 0);
     }
   }, [user]);
 

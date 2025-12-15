@@ -9,7 +9,10 @@ const { getProfile, getUserStats, toggleFavorite, getFavoriteSongs, updateProfil
 router.get("/profile", auth, getProfile);
 
 // PUT /api/users/profile → update user profile
-router.put("/profile", auth, upload.single("profilePicture"), updateProfile);
+router.put("/profile", auth, upload.single("profilePicture"), (req, res, next) => {
+  console.log('req.user after upload and before updateProfile:', req.user);
+  next();
+}, updateProfile);
 
 // GET /api/users/stats → get user stats
 router.get("/stats", auth, getUserStats);

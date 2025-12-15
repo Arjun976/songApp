@@ -16,6 +16,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
+//favorite count and playlist count
 exports.getUserStats = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -42,19 +43,21 @@ exports.toggleFavorite = async (req, res) => {
 
     const index = user.favorites.indexOf(songId);
     if (index > -1) {
-      // Song is already in favorites, remove it
+      // Song is already in favorites remove it
       user.favorites.splice(index, 1);
     } else {
       // Add to favorites
       user.favorites.push(songId);
     }
-
+//after the task sends response
     await user.save();
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Get favorite songs with artist details add to the favorite list
 
 exports.getFavoriteSongs = async (req, res) => {
   try {
@@ -66,7 +69,7 @@ exports.getFavoriteSongs = async (req, res) => {
       },
     });
     res.json(user.favorites);
-  } catch (error) { // <-- This is the corrected line
+  } catch (error) { 
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -100,10 +103,10 @@ exports.updateProfile = async (req, res) => {
 
     res.json(userResponse);
   } catch (error) {
-    console.error('Update Profile Error:', error);
+    console.error('Update Profile Error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     res.status(500).json({ 
       message: "Server error during profile update.",
-      error: error.message,
+      error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
