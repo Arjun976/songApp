@@ -10,7 +10,7 @@ import AdminLayout from "./admin/components/AdminLayout";
 // Auth Pages
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
-import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ForgotPassword from "./pages/Auth/Forgotpassword";
 import NotFound from "./pages/NotFound";
 
 // User Pages
