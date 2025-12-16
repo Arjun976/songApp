@@ -16,6 +16,7 @@ const RatingStars = ({ rating = 0, size = "md", onRate, readonly = false }) => {
     if (readonly) return;
     setSelected(value);
     onRate?.(value);
+    // console.log(`--- Star clicked: ${value}`);
   };
 
   return (
