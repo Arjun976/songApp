@@ -1,7 +1,6 @@
-// components/common/AudioPlayer.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { useMusic } from "../../context/MusicContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaPlay,
   FaPause,
@@ -11,6 +10,7 @@ import {
   FaRandom,
   FaRedo,
   FaChevronUp,
+  FaTimes, // ❌ close icon
 } from "react-icons/fa";
 
 const AudioPlayer = () => {
@@ -21,66 +21,65 @@ const AudioPlayer = () => {
     isPlayerVisible,
     isRepeating,
     toggleRepeat,
+    closePlayer, 
   } = useMusic();
+
   const audioRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(70);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch((e) => console.log(e));
-      } else {
-        audioRef.current.pause();
-      }
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.play().catch(() => {});
+    } else {
+      audioRef.current.pause();
     }
   }, [isPlaying, currentSong]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-      // If a new song is loaded, and it's set to play, reset progress
-      if (currentSong) {
-        audioRef.current.currentTime = 0;
-        setTimeout(() => {
-          setProgress(0);
-        }, 0);
-      }
+    if (!audioRef.current) return;
+
+    audioRef.current.volume = volume / 100;
+
+    if (currentSong) {
+      audioRef.current.currentTime = 0;
+      setProgress(0);
     }
-  }, [volume, currentSong]); // Add currentSong to dependencies for volume effect
+  }, [volume, currentSong]);
 
   const handleTimeUpdate = () => {
-    const progress =
+    const percent =
       (audioRef.current.currentTime / audioRef.current.duration) * 100;
-    setProgress(progress);
+    setProgress(percent || 0);
   };
 
   const handleSeek = (e) => {
     const width = e.target.clientWidth;
     const clickX = e.nativeEvent.offsetX;
     const duration = audioRef.current.duration;
+
     audioRef.current.currentTime = (clickX / width) * duration;
   };
 
   const handleSongEnded = () => {
     if (isRepeating) {
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0; // Reset to beginning
-        audioRef.current.play(); // Play again
-      }
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
     } else {
-      if (isPlaying) {
-        togglePlay();
-      } // Stop playback if not repeating
+      togglePlay();
     }
   };
 
+  // ✅ Player hidden or song removed → render nothing
   if (!isPlayerVisible || !currentSong) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-gray-800 p-4 z-40">
       <div className="max-w-7xl mx-auto flex items-center justify-between text-white">
+
         {/* Song Info */}
         <div
           className="flex items-center space-x-4 flex-1 cursor-pointer"
@@ -89,35 +88,34 @@ const AudioPlayer = () => {
           <img
             src={currentSong.coverUrl}
             alt={currentSong.title}
-            className="w-12 h-12 bg-gray-800 rounded-lg flex-shrink-0"
+            className="w-12 h-12 bg-gray-800 rounded-lg"
           />
           <div>
             <p className="font-medium">{currentSong.title}</p>
-            <p className="text-sm text-gray-400">{currentSong.artist.name}</p>
+            <p className="text-sm text-gray-400">
+              {currentSong.artist?.name}
+            </p>
           </div>
         </div>
 
         {/* Controls */}
         <div className="flex items-center space-x-4">
-          <button className="text-gray-400 hover:text-purple-400">
-            <FaRandom />
-          </button>
-          <button className="text-gray-400 hover:text-purple-400">
-            <FaStepBackward />
-          </button>
+          <FaRandom className="text-gray-400" />
+          <FaStepBackward className="text-gray-400" />
+
           <button
             onClick={togglePlay}
             className="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center"
           >
             {isPlaying ? <FaPause /> : <FaPlay className="ml-1" />}
           </button>
-          <button className="text-gray-400 hover:text-purple-400">
-            <FaStepForward />
-          </button>
+
+          <FaStepForward className="text-gray-400" />
+
           <button
             onClick={toggleRepeat}
-            className={`text-gray-400 hover:text-purple-400 ${
-              isRepeating ? "text-purple-400" : ""
+            className={`${
+              isRepeating ? "text-purple-400" : "text-gray-400"
             }`}
           >
             <FaRedo />
@@ -137,24 +135,35 @@ const AudioPlayer = () => {
           </div>
         </div>
 
-        {/* Volume */}
-        <div className="flex items-center space-x-2 w-24 hidden lg:flex">
-          <FaVolumeUp className="text-gray-400" />
+        {/* Volume + Actions */}
+        <div className="flex items-center space-x-3">
+          <FaVolumeUp className="text-gray-400 hidden lg:block" />
           <input
             type="range"
             min="0"
             max="100"
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
-            className="w-full h-1 bg-gray-700 rounded-full appearance-none cursor-pointer"
+            className="hidden lg:block"
           />
+
+          {/* ⬆ Expand */}
+          <button
+            onClick={() => navigate("/player")}
+            className="text-gray-400 hover:text-white"
+          >
+            <FaChevronUp />
+          </button>
+
+          {/* ❌ Close Player */}
+          <button
+            onClick={closePlayer}
+            className="text-gray-400 hover:text-red-500"
+            title="Close player"
+          >
+            <FaTimes />
+          </button>
         </div>
-        <button
-          onClick={() => navigate("/player")}
-          className="text-gray-400 hover:text-white ml-4"
-        >
-          <FaChevronUp />
-        </button>
       </div>
 
       <audio

@@ -14,7 +14,7 @@ const PaymentCancelledPage = () => {
                     <p className="text-gray-400 mt-2">
                         Your payment process was cancelled. You have not been charged.
                     </p>
-                    <Link to="/" className="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                    <Link to="/home" className="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
                         Return to Homepage
                     </Link>
                 </div>

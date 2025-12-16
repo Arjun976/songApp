@@ -31,3 +31,13 @@ export const getPlaylistById = async (playlistId) => {
   const res = await axios.get(`${API_URL}/${playlistId}`, getAuthHeaders());
   return res.data;
 };
+
+export const deletePlaylist = async (playlistId) => {
+  const res = await axios.delete(
+    `${API_URL}/${playlistId}`,
+    getAuthHeaders()
+  );
+  return res.data;
+};
+
+

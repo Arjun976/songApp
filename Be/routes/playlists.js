@@ -7,6 +7,7 @@ const {
   getMyPlaylists,
   getPlaylistById,
   addSongToPlaylist,
+  deletePlaylist,
 } = require("../controllers/playlistController");
 
 // POST /api/playlists → create new playlist
@@ -20,5 +21,9 @@ router.get("/:id", auth, getPlaylistById);
 
 // POST /api/playlists/:id/songs → add song to playlist
 router.post("/:id/songs", auth, addSongToPlaylist);
+
+// routes/playlists.js
+router.delete("/:id", auth, deletePlaylist);
+
 
 module.exports = router;

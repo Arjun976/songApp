@@ -1,19 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import { useLocation } from "react-router-dom";
 import SongList from "../components/SongList";
 import ArtistList from "../components/ArtistList";
 import { search } from "../../api/songs"; 
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { toggleFavorite } from "../../api/users";
+import { AuthContext } from "../../context/AuthContext";
+import AddToPlaylistModal from "../components/AddToPlaylistModal";
+
+
 
 const SearchResultsPage = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search).get("q") || "";
+  const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
 
+  const { user } = useContext(AuthContext);
   const [songs, setSongs] = useState([]);
   const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+ 
   useEffect(() => {
     if (!query) {
       setSongs([]);
@@ -21,7 +29,6 @@ const SearchResultsPage = () => {
       setLoading(false);
       return;
     }
-
     const fetchResults = async () => {
       try {
         setLoading(true);
@@ -36,9 +43,25 @@ const SearchResultsPage = () => {
         setLoading(false);
       }
     };
+    
 
     fetchResults();
   }, [query]);
+
+
+   const handleFavorite = async (id) => {
+        try {
+          const updatedUser = await toggleFavorite(id);
+          console.log("Favorite toggled:", updatedUser);
+        } catch (error) {
+          console.error("Failed to toggle favorite", error);
+        }
+      };
+
+      const handleAddToPlaylist = (song) => {
+      setSelectedSong(song);
+       setIsAddToPlaylistModalOpen(true);
+  };
 
   const totalResults = songs.length + artists.length;
 
@@ -63,7 +86,14 @@ const SearchResultsPage = () => {
     return (
       <>
         <ArtistList artists={artists} />
-        <SongList songs={songs} title="Songs" />
+        <SongList
+         songs={songs}
+         onFavorite={handleFavorite}
+          favorites={user?.favorites || []} 
+          onAddToPlaylist={handleAddToPlaylist}
+        
+        
+        title="Songs" />
       </>
     );
   };
@@ -89,6 +119,13 @@ const SearchResultsPage = () => {
           {renderContent()}
         </div>
       </div>
+       {selectedSong && (
+        <AddToPlaylistModal
+          song={selectedSong}
+          isOpen={isAddToPlaylistModalOpen}
+          onClose={() => setIsAddToPlaylistModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

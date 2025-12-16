@@ -13,6 +13,7 @@ const PlaylistsPage = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  
 
   const fetchPlaylistsAndFavorites = async () => {
     try {
@@ -72,7 +73,12 @@ const PlaylistsPage = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {playlists.map((playlist) => (
-              <PlaylistCard key={playlist._id} playlist={playlist} />
+              <PlaylistCard
+                key={playlist._id}
+                playlist={playlist}
+                onDelete={fetchPlaylistsAndFavorites}
+              />
+
             ))}
           </div>
         )}

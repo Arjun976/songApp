@@ -44,8 +44,8 @@ exports.createCheckoutSession = async (req, res, next) => {
         songId: song._id.toString(),
       },
       // The frontend will use the session_id from the URL to verify payment
-      success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment/cancelled`,
+      success_url: `http://localhost:5173/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:5173/payment/cancelled`,
     });
 
     // Return the full URL for the frontend to redirect to.

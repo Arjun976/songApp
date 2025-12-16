@@ -61,7 +61,7 @@ const PaymentSuccessPage = () => {
                         <FaExclamationCircle className="text-5xl text-red-400 mx-auto mb-4" />
                         <h1 className="text-2xl font-semibold">Payment Error</h1>
                         <p className="text-gray-400">{message}</p>
-                         <Link to="/" className="mt-6 inline-block bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                         <Link to="/home" className="mt-6 inline-block bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                             Go to Homepage
                         </Link>
                     </div>

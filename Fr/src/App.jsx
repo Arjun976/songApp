@@ -22,8 +22,12 @@ import PlaylistsPage from "./user/pages/PlaylistsPage";
 import PlaylistDetailPage from "./user/pages/PlaylistDetailPage";
 import PlayerPage from "./pages/PlayerPage";
 import PublicArtistProfilePage from "./user/pages/PublicArtistProfilePage";
-import PaymentSuccessPage from "./pages/PaymentSuccessPage"; // Import new page
-import PaymentCancelledPage from "./pages/PaymentCancelledPage"; // Import new page
+
+// Payment Pages
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import PaymentCancelledPage from "./pages/PaymentCancelledPage";
+// import Success from "./user/pages/Success";
+// import Fail from "./user/pages/Fail";
 
 // Artist Pages
 import ArtistDashboard from "./artist/pages/ArtistDashboard";
@@ -43,24 +47,31 @@ function App() {
   return (
     <MusicProvider>
       <Routes>
-        {/* ==================== USER PAGES (with Navbar) ==================== */}
+        {/* ==================== AUTH PAGES (no layout) ==================== */}
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* ==================== USER PAGES (with MainLayout + Navbar) ==================== */}
         <Route element={<MainLayout userRole="user" />}>
-          
           <Route path="/home" element={<HomePage />} />
           <Route path="/song/:id" element={<SongDetailPage />} />
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/playlists" element={<PlaylistsPage />} />
           <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
-          <Route path="/player" element={<PlayerPage />} /> 
+          <Route path="/player" element={<PlayerPage />} />
           <Route path="/artist/:id" element={<PublicArtistProfilePage />} />
-          
-          {/* Payment Status Pages */}
+
+          {/* Payment Result Pages */}
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/cancelled" element={<PaymentCancelledPage />} />
+          {/* <Route path="/success" element={<Success />} />
+          <Route path="/fail" element={<Fail />} /> */}
         </Route>
 
-        {/* ==================== ARTIST PANEL (own sidebar) ==================== */}
+        {/* ==================== ARTIST PANEL (own layout + sidebar) ==================== */}
         <Route path="/dashboard" element={<ArtistLayout />}>
           <Route index element={<ArtistDashboard />} />
           <Route path="upload" element={<UploadPage />} />
@@ -69,7 +80,7 @@ function App() {
           <Route path="profile" element={<ArtistProfilePage />} />
         </Route>
 
-        {/* ==================== ADMIN PANEL (own sidebar) ==================== */}
+        {/* ==================== ADMIN PANEL (own layout + sidebar) ==================== */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
@@ -78,12 +89,7 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
-        {/* ==================== AUTH PAGES (no Navbar) ==================== */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        {/* ==================== 404 ==================== */}
+        {/* ==================== 404 Not Found ==================== */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </MusicProvider>

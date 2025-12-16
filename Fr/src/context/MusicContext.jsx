@@ -1,4 +1,3 @@
-// src/context/MusicContext.jsx
 import React, { createContext, useContext, useState } from "react";
 
 const MusicContext = createContext();
@@ -7,7 +6,7 @@ export const MusicProvider = ({ children }) => {
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
-  const [isRepeating, setIsRepeating] = useState(false); // New state for repeat
+  const [isRepeating, setIsRepeating] = useState(false);
 
   const playSong = (song) => {
     setCurrentSong(song);
@@ -17,7 +16,7 @@ export const MusicProvider = ({ children }) => {
 
   const togglePlay = () => {
     if (currentSong) {
-      setIsPlaying(!isPlaying);
+      setIsPlaying((prev) => !prev);
     }
   };
 
@@ -25,19 +24,29 @@ export const MusicProvider = ({ children }) => {
     setIsRepeating((prev) => !prev);
   };
 
+  // ✅ ADD THIS FUNCTION
+  const closePlayer = () => {
+    setIsPlaying(false);       // stop music
+    setCurrentSong(null);      // clear song
+    setIsPlayerVisible(false); // hide player
+  };
+
   const value = {
     currentSong,
     isPlaying,
     isPlayerVisible,
-    isRepeating, // Add isRepeating to context value
+    isRepeating,
     playSong,
     togglePlay,
-    toggleRepeat, // Add toggleRepeat to context value
+    toggleRepeat,
+    closePlayer,          // 👈 expose it
     setIsPlayerVisible,
   };
 
   return (
-    <MusicContext.Provider value={value}>{children}</MusicContext.Provider>
+    <MusicContext.Provider value={value}>
+      {children}
+    </MusicContext.Provider>
   );
 };
 

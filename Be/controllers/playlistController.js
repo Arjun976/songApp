@@ -61,3 +61,25 @@ exports.addSongToPlaylist = async (req, res) => {
     res.status(500).json({ message: "Error adding song" });
   }
 };
+
+exports.deletePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findById(req.params.id);
+
+    if (!playlist) {
+      return res.status(404).json({ message: "Playlist not found" });
+    }
+
+    // ownership check
+    if (playlist.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized to delete this playlist" });
+    }
+
+    await playlist.deleteOne();
+
+    res.json({ message: "Playlist deleted successfully" });
+  } catch (error) {
+    console.error("Delete playlist error:", error);
+    res.status(500).json({ message: "Failed to delete playlist" });
+  }
+};
