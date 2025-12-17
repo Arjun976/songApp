@@ -53,7 +53,7 @@ const Success = () => {
           </Link>
 
           <Link
-            to="/"
+            to="/home"
             className="border border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white font-medium py-4 rounded-lg transition"
           >
             Back to Home

@@ -15,6 +15,7 @@ const MySongsPage = () => {
       try {
         const fetchedSongs = await getMySongs();
         setSongs(fetchedSongs);
+        console.log("Fetched songs for MySongsPage:", fetchedSongs);
       } catch (err) {
         setError("Failed to fetch songs.");
         console.error(err);
