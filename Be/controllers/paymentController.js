@@ -72,7 +72,11 @@ exports.verifyCheckoutSession = async (req, res, next) => {
             // Check if user already owns the song to prevent duplicate processing
             const user = await User.findById(userId);
             if (user.purchasedSongs.includes(songId)) {
-                return res.status(200).json({ message: 'Purchase already fulfilled.' });
+                const song = await Song.findById(songId);
+                return res.status(200).json({ 
+                    message: 'Purchase already fulfilled.',
+                    songUrl: song ? song.audioUrl : null
+                });
             }
 
             // Fulfill the purchase
@@ -80,9 +84,18 @@ exports.verifyCheckoutSession = async (req, res, next) => {
                 $addToSet: { purchasedSongs: songId },
             });
 
+            const song = await Song.findById(songId);
+            if (!song) {
+                // This case is unlikely if the checkout session was created with a valid songId
+                return res.status(404).json({ message: "Song not found after purchase." });
+            }
+
             console.log(`Successfully fulfilled purchase for user ${userId} and song ${songId} via client-side verification.`);
             
-            return res.status(200).json({ message: 'Payment successful and purchase fulfilled.' });
+            return res.status(200).json({ 
+                message: 'Payment successful and purchase fulfilled.',
+                songUrl: song.audioUrl 
+            });
         } else {
             return res.status(400).json({ message: 'Payment not successful.' });
         }
