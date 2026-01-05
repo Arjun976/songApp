@@ -41,14 +41,17 @@ const AudioPlayer = () => {
 
   useEffect(() => {
     if (!audioRef.current) return;
-
     audioRef.current.volume = volume / 100;
+  }, [volume]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
 
     if (currentSong) {
       audioRef.current.currentTime = 0;
       setProgress(0);
     }
-  }, [volume, currentSong]);
+  }, [currentSong]);
 
   const handleTimeUpdate = () => {
     const percent =
