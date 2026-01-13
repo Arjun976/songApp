@@ -1,5 +1,5 @@
 // src/components/common/Navbar.jsx
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch, FaUser, FaSignOutAlt, FaMusic, FaHome, FaUpload, FaChartBar, FaCog } from "react-icons/fa";
 import VoiceCommandIndicator from "./VoiceCommandIndicator";
@@ -14,42 +14,53 @@ const Navbar = ({ userRole = "user" }) => {
   const [voiceCommand, setVoiceCommand] = useState("");
   const { playSong } = useMusic();
 
-  
-   const handleplaySong = async (songName) => {
-    console.log(`Playing song: ${songName}`);
-    // navigate(`/search?q=${encodeURIComponent(songName.trim())}`);
-    // Implement actual song playing logic here
-    console.log("Searching for song to play:", search(songName));
+  const handleplaySong = useCallback(
+    async (songName) => {
+      console.log(`Playing song: ${songName}`);
+      // Implement actual song playing logic here
 
-   const {songs} = await search(songName);
-   console.log("Songs found:", songs);
-   
-   
-    if (songs.length==1) {
-      console.log("Found song to play:", songs[0]);
-      playSong(songs[0]);
-      navigate("/player");
-    
-     }
+      const { songs } = await search(songName);
+      console.log("Songs found:", songs);
+       if (songs.length === 0) {
+        alert("No songs found for the command.");
+        return;
+      }
 
-   }
+      if (songs.length === 1) {
+        console.log("Found song to play:", songs[0]);
+        playSong(songs[0]);
+        navigate("/player");
+      }
+     
+    },
+    [navigate, playSong]
+  );
+
   const handleVoiceCommand = (command) => {
     console.log("Voice command received:", command);
-
     setVoiceCommand(command);
   };
-  console.log("Current voice command:", voiceCommand);
 
-  const cleaned= voiceCommand.trim().toLowerCase();
+  useEffect(() => {
+    if (!voiceCommand) return;
+    const cleaned = voiceCommand.trim().toLowerCase();
+    if (!cleaned.startsWith("play")) {
+      alert("Unrecognized command. Please say 'play [song name]'.");
+      setVoiceCommand("");
+      return; 
 
-  if (cleaned.startsWith("play")){
-
-    const songName = cleaned.replace("play", "").trim();
-    if(!songName){
-      console.log("No song name provided in the command.");
     }
-    handleplaySong(songName);
-  }
+
+     if (cleaned.startsWith("play")) {
+      const songName = cleaned.replace("play", "").trim();
+      if (songName) {
+        handleplaySong(songName);
+      } else {
+        console.log("No song name provided in the command.");
+      }
+      setVoiceCommand("");
+    }
+  }, [voiceCommand, handleplaySong]);
  
 
   const handleSearch = (e) => {
