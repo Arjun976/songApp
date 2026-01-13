@@ -2,12 +2,55 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch, FaUser, FaSignOutAlt, FaMusic, FaHome, FaUpload, FaChartBar, FaCog } from "react-icons/fa";
+import VoiceCommandIndicator from "./VoiceCommandIndicator";
+import { search } from "../../api/songs";
+import { useMusic } from "../../context/MusicContext";
 
 const Navbar = ({ userRole = "user" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+  const [voiceCommand, setVoiceCommand] = useState("");
+  const { playSong } = useMusic();
+
+  
+   const handleplaySong = async (songName) => {
+    console.log(`Playing song: ${songName}`);
+    // navigate(`/search?q=${encodeURIComponent(songName.trim())}`);
+    // Implement actual song playing logic here
+    console.log("Searching for song to play:", search(songName));
+
+   const {songs} = await search(songName);
+   console.log("Songs found:", songs);
+   
+   
+    if (songs.length==1) {
+      console.log("Found song to play:", songs[0]);
+      playSong(songs[0]);
+      navigate("/player");
+    
+     }
+
+   }
+  const handleVoiceCommand = (command) => {
+    console.log("Voice command received:", command);
+
+    setVoiceCommand(command);
+  };
+  console.log("Current voice command:", voiceCommand);
+
+  const cleaned= voiceCommand.trim().toLowerCase();
+
+  if (cleaned.startsWith("play")){
+
+    const songName = cleaned.replace("play", "").trim();
+    if(!songName){
+      console.log("No song name provided in the command.");
+    }
+    handleplaySong(songName);
+  }
+ 
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -62,19 +105,23 @@ const Navbar = ({ userRole = "user" }) => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search songs, artists..."
-                className="w-full bg-gray-900/70 border border-gray-700 rounded-full py-3 pl-12 pr-5 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition"
-              />
-            </div>
-          </form>
-
+         <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">
+  <div className="relative w-full flex items-center">
+    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg z-10" />
+    <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search songs, artists..."
+      className="w-full bg-gray-900/70 border border-gray-700 rounded-full py-3 pl-12 pr-14 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition"
+    />
+    {/* Mic button inside input */}
+    <div className="absolute right-2">
+      <VoiceCommandIndicator onCommand={handleVoiceCommand} />
+    </div>
+  </div>
+</form>
+    
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
             {links.map((link) => (

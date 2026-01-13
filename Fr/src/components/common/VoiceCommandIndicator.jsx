@@ -1,18 +1,42 @@
-// components/common/VoiceCommandIndicator.jsx
 import React from "react";
 import { FaMicrophone } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
-const VoiceCommandIndicator = ({ isListening }) => {
+const VoiceCommandIndicator = ({ onCommand}) => {
+  const [isListening, setIsListening] = useState(false);
+  
+  useEffect(() => {
+      if (!("webkitSpeechRecognition" in window)) return;
+  
+      const recognition = new window.webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+  
+      recognition.onresult = (e) => {
+        const command = e.results[0][0].transcript.toLowerCase();
+        onCommand(command);
+        setIsListening(false);
+      };
+  
+      if (isListening) recognition.start();
+      else recognition.stop();
+  
+      return () => recognition.stop();
+    }, [isListening, onCommand]);
+
   return (
-    <div
-      className={`fixed bottom-20 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all ${
+    <button
+      type="button" // important: prevents form submit
+      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
         isListening
-          ? "bg-purple-600 animate-pulse ring-4 ring-purple-500/50"
-          : "bg-gray-800"
+          ? "bg-purple-600 animate-pulse text-white"
+          : "bg-gray-700/70 text-gray-300 hover:bg-gray-600"
       }`}
+      onClick={() => setIsListening(!isListening)}
+      aria-label="Voice search"
     >
-      <FaMicrophone className={`text-xl ${isListening ? "text-white" : "text-gray-400"}`} />
-    </div>
+      <FaMicrophone className="text-lg" />
+    </button>
   );
 };
 

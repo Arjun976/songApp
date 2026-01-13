@@ -28,8 +28,14 @@ export const deleteSong = async (songId) => {
 };
 
 // Get a single song by ID
-export const getSongById = async (id) => {
+export const getSong = async (id) => {
   const response = await axios.get(`${API_URL}/${id}`);
+  return response.data;
+};
+
+// Get comments for a song
+export const getSongComments = async (songId) => {
+  const response = await axios.get(`${API_URL}/${songId}/comments`);
   return response.data;
 };
 
@@ -50,12 +56,12 @@ export const rateSong = async (id, rating) => {
 };
 
 // Add a comment to a song
-export const addComment = async (id, text) => {
+export const addComment = async (id, commentData) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No auth token found. Please log in.");
   const response = await axios.post(
     `${API_URL}/${id}/comments`,
-    { text },
+    commentData,
     {
       headers: {
         Authorization: `Bearer ${token}`,

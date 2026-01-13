@@ -29,7 +29,10 @@ const AudioPlayer = () => {
   const [volume, setVolume] = useState(70);
   const navigate = useNavigate();
 
+
+// Play/Pause effect
   useEffect(() => {
+    console.log("play/pause");
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -39,17 +42,22 @@ const AudioPlayer = () => {
     }
   }, [isPlaying, currentSong]);
 
+  // Volume effect
   useEffect(() => {
+    console.log("volume");
     if (!audioRef.current) return;
     audioRef.current.volume = volume / 100;
   }, [volume]);
 
+  // Reset progress on new song
   useEffect(() => {
+    console.log("progress");
     if (!audioRef.current) return;
 
     if (currentSong) {
       audioRef.current.currentTime = 0;
-      setProgress(0);
+      // setProgress(0);
+      
     }
   }, [currentSong]);
 

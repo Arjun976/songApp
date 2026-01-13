@@ -5,7 +5,7 @@ const Comment = require("../models/Comment");
 
 exports.addComment = async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, parentId } = req.body; // parentId for replies
     const songId = req.params.id;
     const userId = req.user.id;
 
@@ -13,23 +13,34 @@ exports.addComment = async (req, res) => {
       return res.status(400).json({ message: "Comment text is required." });
     }
 
-    // 1. Create the new comment
-    const newComment = new Comment({
-      text,
-      user: userId,
-      song: songId,
-    });
-    await newComment.save();
-
-    // 2. Add the comment reference to the song
     const song = await Song.findById(songId);
     if (!song) {
       return res.status(404).json({ message: "Song not found." });
     }
-    song.comments.unshift(newComment._id);
-    await song.save();
 
-    // 3. Populate user details for the response
+    // Create the new comment
+    const newComment = new Comment({
+      text,
+      user: userId,
+      song: songId,
+      parent: parentId || null,
+    });
+    await newComment.save();
+    
+    if (parentId) {
+      // It's a reply, add it to the parent comment's replies array
+      const parentComment = await Comment.findById(parentId);
+      if (parentComment) {
+        parentComment.replies.push(newComment._id);
+        await parentComment.save();
+      }
+    } else {
+      // It's a top-level comment, add it to the song's comments array
+      song.comments.unshift(newComment._id);
+      await song.save();
+    }
+
+    // Populate user details for the response
     const populatedComment = await Comment.findById(newComment._id).populate("user", "name avatar");
 
     res.status(201).json(populatedComment);
@@ -37,6 +48,28 @@ exports.addComment = async (req, res) => {
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ message: "Server error while adding comment." });
+  }
+};
+
+exports.getSongComments = async (req, res) => {
+  try {
+    const songId = req.params.id;
+    const comments = await Comment.find({ song: songId, parent: null })
+      .populate("user", "name avatar")
+      .populate({
+        path: "replies",
+        populate: {
+          path: "user",
+          select: "name avatar",
+        },
+        options: { sort: { createdAt: "asc" } },
+      })
+      .sort({ createdAt: "desc" });
+
+    res.status(200).json(comments);
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ message: "Server error while fetching comments." });
   }
 };
 

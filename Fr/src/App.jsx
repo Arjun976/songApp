@@ -35,6 +35,7 @@ import UploadPage from "./artist/pages/UploadPage";
 import MySongsPage from "./artist/pages/MySongsPage";
 import EarningsPage from "./artist/pages/EarningsPage";
 import ArtistProfilePage from "./artist/pages/ArtistProfilePage";
+import SongCommentsPage from "./artist/pages/SongCommentsPage";
 
 // Admin Pages
 import AdminDashboard from "./admin/pages/AdminDashboard";
@@ -76,6 +77,7 @@ function App() {
           <Route index element={<ArtistDashboard />} />
           <Route path="upload" element={<UploadPage />} />
           <Route path="songs" element={<MySongsPage />} />
+          <Route path="songs/:songId/comments" element={<SongCommentsPage />} />
           <Route path="earnings" element={<EarningsPage />} />
           <Route path="profile" element={<ArtistProfilePage />} />
         </Route>

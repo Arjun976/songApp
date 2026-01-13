@@ -13,6 +13,7 @@ const {
   addComment,
   rateSong,
   downloadSong,
+  getSongComments,
 } = require("../controllers/songController");
 
 // routes/songs.js
@@ -27,6 +28,9 @@ router.get("/", getAllSongs);
 
 // GET /api/songs/my → only the artist sees their songs
 router.get("/my", auth, getMySongs);
+
+// GET /api/songs/:id/comments -> public
+router.get("/:id/comments", getSongComments);
 
 // GET /api/songs/:id → public
 router.get("/:id", getSongById);

@@ -9,6 +9,7 @@ export const MusicProvider = ({ children }) => {
   const [isRepeating, setIsRepeating] = useState(false);
 
   const playSong = (song) => {
+    console.log("Playing song:", song);
     setCurrentSong(song);
     setIsPlaying(true);
     setIsPlayerVisible(true);

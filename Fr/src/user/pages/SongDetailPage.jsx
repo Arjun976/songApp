@@ -7,7 +7,7 @@ import CommentSection from "../components/CommentSection";
 import DownloadButton from "../components/DownloadButton";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
-import { getSongById, addComment, rateSong } from "../../api/songs";
+import { getSong, addComment, rateSong } from "../../api/songs";
 import { useMusic } from "../../context/MusicContext";
 import { AuthContext } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
@@ -25,7 +25,7 @@ const SongDetailPage = () => {
     const fetchSong = async () => {
       try {
         setLoading(true);
-        const fetchedSong = await getSongById(id);
+        const fetchedSong = await getSong(id);
         setSong(fetchedSong);
       } catch (err) {
         setError("Failed to fetch song details. Please try again later.");
@@ -61,7 +61,7 @@ const SongDetailPage = () => {
     }
     if (!text.trim()) return;
     try {
-      const newComment = await addComment(song._id, text);
+      const newComment = await addComment(song._id, { text });
       setSong((prev) => ({
         ...prev,
         comments: [newComment, ...prev.comments],
@@ -157,7 +157,11 @@ const SongDetailPage = () => {
         {/* Comments */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6 text-purple-400">Comments</h2>
-          <CommentSection comments={song.comments || []} onSubmit={handleComment} disabled={!user} />
+          <CommentSection
+            comments={song.comments || []}
+            onCommentSubmit={handleComment}
+            disabled={!user}
+          />
         </div>
       </div>
     </div>
