@@ -54,10 +54,13 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Ensure password is a string to prevent bcrypt errors with numeric passwords
+    const passwordString = String(password);
+
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await user.comparePassword(passwordString);
     if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
 
     if (user.isBanned) return res.status(403).json({ message: "Account is banned" });

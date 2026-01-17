@@ -4,7 +4,7 @@ import axios from "axios";
 
 export const AuthContext = createContext();
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://symphonydb.onrender.com/api/auth";
 
 const api = axios.create({
   baseURL: API_URL,
