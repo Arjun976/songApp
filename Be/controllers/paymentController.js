@@ -44,8 +44,8 @@ exports.createCheckoutSession = async (req, res, next) => {
         songId: song._id.toString(),
       },
       // The frontend will use the session_id from the URL to verify payment
-      success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5173/fail`,
+      success_url: `https://symphonydb.onrender.com/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://symphonydb.onrender.com/fail`,
     });
 
     // Return the full URL for the frontend to redirect to.
