@@ -25,16 +25,7 @@ app.use("/api/payments", require("./routes/payments"));
 app.use("/api/admin", require("./routes/admin"));
 
 
-// ================== SERVE FRONTEND ==================
-// Serve static files from the React app's build directory
-app.use(express.static(path.join(__dirname, "../Fr/dist")));
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Fr/dist/index.html"));
-});
-// =================================================
 
 
 // Global Error Handling Middleware
