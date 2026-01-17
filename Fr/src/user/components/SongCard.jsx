@@ -19,6 +19,7 @@ const SongCard = ({ song, onAddToPlaylist, onFavorite, isFavorited }) => {
     setOptimisticIsFavorited(isFavorited);
   }, [isFavorited]);
 
+
   const handlePlay = () => {
     playSong(song);
     navigate("/player");
