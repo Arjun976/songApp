@@ -12,7 +12,7 @@ const DownloadButton = ({ song, size = "md" }) => {
       <a
         target="_blank"
         rel="noopener noreferrer"
-        href={`http://localhost:5000/api/songs/${song._id}/download`}
+        href={`https://symphonydb.onrender.com/api/songs/${song._id}/download`}
         className="text-green-400 hover:text-green-300"
       >
         <FaDownload />
