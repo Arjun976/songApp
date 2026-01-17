@@ -26,7 +26,7 @@ import PublicArtistProfilePage from "./user/pages/PublicArtistProfilePage";
 // Payment Pages
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelledPage from "./pages/PaymentCancelledPage";
-import Success from "./user/pages/Success";
+
 import Fail from "./user/pages/Fail";
 
 // Artist Pages
@@ -68,7 +68,7 @@ function App() {
           {/* Payment Result Pages */}
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/cancelled" element={<PaymentCancelledPage />} />
-          <Route path="/success" element={<Success />} />
+          
           <Route path="/fail" element={<Fail />} />
         </Route>
 
