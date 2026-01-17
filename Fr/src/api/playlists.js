@@ -1,7 +1,8 @@
 // src/api/playlists.js
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
-const API_URL = "http://localhost:5000/api/playlists";
+const PLAYLISTS_API_URL = `${API_BASE_URL}/playlists`;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -13,28 +14,28 @@ const getAuthHeaders = () => {
 };
 
 export const getMyPlaylists = async () => {
-  const res = await axios.get(`${API_URL}/my`, getAuthHeaders());
+  const res = await axios.get(`${PLAYLISTS_API_URL}/my`, getAuthHeaders());
   return res.data;
 };
 
 export const createPlaylist = async (playlistData) => {
-  const res = await axios.post(API_URL, playlistData, getAuthHeaders());
+  const res = await axios.post(PLAYLISTS_API_URL, playlistData, getAuthHeaders());
   return res.data;
 };
 
 export const addSongToPlaylist = async (playlistId, songId) => {
-  const res = await axios.post(`${API_URL}/${playlistId}/songs`, { songId }, getAuthHeaders());
+  const res = await axios.post(`${PLAYLISTS_API_URL}/${playlistId}/songs`, { songId }, getAuthHeaders());
   return res.data;
 };
 
 export const getPlaylistById = async (playlistId) => {
-  const res = await axios.get(`${API_URL}/${playlistId}`, getAuthHeaders());
+  const res = await axios.get(`${PLAYLISTS_API_URL}/${playlistId}`, getAuthHeaders());
   return res.data;
 };
 
 export const deletePlaylist = async (playlistId) => {
   const res = await axios.delete(
-    `${API_URL}/${playlistId}`,
+    `${PLAYLISTS_API_URL}/${playlistId}`,
     getAuthHeaders()
   );
   return res.data;
