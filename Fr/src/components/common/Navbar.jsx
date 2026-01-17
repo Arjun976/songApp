@@ -108,7 +108,7 @@ const Navbar = ({ userRole = "user" }) => {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/home" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
               <FaMusic className="text-white text-lg" />
             </div>
