@@ -72,13 +72,13 @@ const PaymentSuccessPage = () => {
     };
 
     return (
-        <MainLayout>
+        // <MainLayout>
             <div className="container mx-auto px-4 py-16 flex items-center justify-center">
                 <div className="bg-gray-800/50 p-8 rounded-xl shadow-lg max-w-lg w-full">
                     {renderStatus()}
                 </div>
             </div>
-        </MainLayout>
+        // </MainLayout>
     );
 };
 
