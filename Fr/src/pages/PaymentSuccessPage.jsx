@@ -9,6 +9,7 @@ const PaymentSuccessPage = () => {
     const location = useLocation();
     const [status, setStatus] = useState('loading'); // loading, success, error
     const [message, setMessage] = useState('Verifying your payment, please wait...');
+    const [songUrl, setSongUrl] = useState(null); // State to hold the song URL
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -25,6 +26,7 @@ const PaymentSuccessPage = () => {
                 const response = await verifyPaymentSession(sessionId);
                 setStatus('success');
                 setMessage(response.message || 'Your payment was successful and the song has been added to your library!');
+                setSongUrl(response.songUrl); // Save the song URL from the API response
             } catch (error) {
                 setStatus('error');
                 setMessage(error.message || 'There was an error verifying your payment. Please contact support.');
@@ -50,9 +52,20 @@ const PaymentSuccessPage = () => {
                         <FaCheckCircle className="text-5xl text-green-400 mx-auto mb-4" />
                         <h1 className="text-2xl font-semibold">Payment Successful!</h1>
                         <p className="text-gray-400">{message}</p>
-                        <Link to="/home" className="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                            Go to HOME
-                        </Link>
+                        <div className="flex justify-center gap-4 mt-6">
+                            {songUrl && (
+                                <a
+                                    href={songUrl}
+                                    download
+                                    className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                                >
+                                    Download Song
+                                a>
+                            )}
+                            <Link to="/home" className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                                Go to Home
+                            </Link>
+                        </div>
                     </div>
                 );
             case 'error':
