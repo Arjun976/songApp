@@ -50,8 +50,8 @@ const PaymentSuccessPage = () => {
                         <FaCheckCircle className="text-5xl text-green-400 mx-auto mb-4" />
                         <h1 className="text-2xl font-semibold">Payment Successful!</h1>
                         <p className="text-gray-400">{message}</p>
-                        <Link to="/user/profile" className="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                            Go to My Profile
+                        <Link to="/home" className="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                            Go to HOME
                         </Link>
                     </div>
                 );
