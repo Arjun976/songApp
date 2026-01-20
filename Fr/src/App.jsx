@@ -54,6 +54,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
+        {/* Payment Result Pages */}
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/payment/cancelled" element={<PaymentCancelledPage />} />
+
         {/* ==================== USER PAGES (with MainLayout + Navbar) ==================== */}
         <Route element={<MainLayout userRole="user" />}>
           <Route path="/home" element={<HomePage />} />
@@ -64,10 +68,6 @@ function App() {
           <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
           <Route path="/player" element={<PlayerPage />} />
           <Route path="/artist/:id" element={<PublicArtistProfilePage />} />
-
-          {/* Payment Result Pages */}
-          <Route path="/payment/success" element={<PaymentSuccessPage />} />
-          <Route path="/payment/cancelled" element={<PaymentCancelledPage />} />
           
           <Route path="/fail" element={<Fail />} />
         </Route>
