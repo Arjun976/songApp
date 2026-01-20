@@ -1,0 +1,22 @@
+# This file configures how your project is deployed on Render.
+# See https://render.com/docs/yaml-spec for details.
+
+services:
+  # A static site for the frontend.
+  - type: static_site
+    # The name of the service.
+    name: symphony-frontend
+    # The environment for the service.
+    env: static
+    # The directory where the frontend code is located.
+    rootDir: Fr
+    # The command to build the frontend.
+    buildCommand: npm install && npm run build
+    # The directory where the built files are located.
+    staticPublishPath: dist
+    # Rewrite rule for single-page applications.
+    # This ensures that all routes are handled by index.html.
+    routes:
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
