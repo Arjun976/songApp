@@ -1,8 +1,9 @@
 // components/user/CommentSection.jsx
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaPaperPlane, FaUser, FaReply } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
 import { deleteComment } from "../../api/songs";
+import { AuthContext } from "../../context/AuthContext";
 
 const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
   const [replyText, setReplyText] = useState("");
@@ -79,6 +80,7 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
 
 const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelete, songId }) => {
   const [text, setText] = useState("");
+  const { user } = useContext(AuthContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -91,7 +93,7 @@ const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelet
     <div className="space-y-6">
       {/* Add Comment */}
       <form onSubmit={handleSubmit} className="flex gap-3">
-        <Avatar size="sm" alt="You" />
+        <Avatar size="sm" src={user?.avatar} alt={user?.name || "You"} />
         <input
           type="text"
           value={text}
