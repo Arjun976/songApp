@@ -6,7 +6,7 @@ import { deleteComment } from "../../api/songs";
 import { getUserStats } from "../../api/users";
 import { AuthContext } from "../../context/AuthContext";
 
-const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
+const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
   const [replyText, setReplyText] = useState("");
   const [showReply, setShowReply] = useState(false);
 
@@ -17,6 +17,9 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
     setReplyText("");
     setShowReply(false);
   };
+
+  const canDelete = currentUser && (currentUser._id === comment.user?._id || currentUser.role === 'admin');
+
    const handleDelete = async () => {
     try {
       await deleteComment(songId, comment._id);
@@ -43,7 +46,9 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
             <FaReply />
             Reply
           </button>
-          <button className="text-xs text-gray-400 hover:text-red-400" onClick={handleDelete}>Delete</button>
+          {canDelete && (
+            <button className="text-xs text-gray-400 hover:text-red-400" onClick={handleDelete}>Delete</button>
+          )}
         </div>
 
         {showReply && (
@@ -133,7 +138,7 @@ const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelet
       {/* Comments List */}
       <div className="space-y-4">
         {comments.map((c) => (
-          <Comment key={c._id} comment={c} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} />
+          <Comment key={c._id} comment={c} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} currentUser={user} />
         ))}
       </div>
     </div>
