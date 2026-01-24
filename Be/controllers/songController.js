@@ -41,7 +41,7 @@ exports.addComment = async (req, res) => {
     }
 
     // Populate user details for the response
-    const populatedComment = await Comment.findById(newComment._id).populate("user", "name avatar");
+    const populatedComment = await Comment.findById(newComment._id).populate("user", "name avatar _id");
 
     res.status(201).json(populatedComment);
 
@@ -55,12 +55,12 @@ exports.getSongComments = async (req, res) => {
   try {
     const songId = req.params.id;
     const comments = await Comment.find({ song: songId, parent: null })
-      .populate("user", "name avatar")
+      .populate("user", "name avatar _id")
       .populate({
         path: "replies",
         populate: {
           path: "user",
-          select: "name avatar",
+          select: "name avatar _id",
         },
         options: { sort: { createdAt: "asc" } },
       })
@@ -293,7 +293,7 @@ exports.getSongById = async (req, res) => {
         path: "comments",
         populate: {
           path: "user",
-          select: "name avatar", // Get commenter's details
+          select: "name avatar _id", // Get commenter's details
         },
         options: { sort: { createdAt: -1 } }, // Sort comments newest first
       });
