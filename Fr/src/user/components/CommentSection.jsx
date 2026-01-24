@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { FaPaperPlane, FaUser, FaReply } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
+import { deleteComment } from "../../api/songs";
 
-const Comment = ({ comment, onReplySubmit }) => {
+const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
   const [replyText, setReplyText] = useState("");
   const [showReply, setShowReply] = useState(false);
 
@@ -13,6 +14,14 @@ const Comment = ({ comment, onReplySubmit }) => {
     onReplySubmit?.(comment._id, replyText);
     setReplyText("");
     setShowReply(false);
+  };
+   const handleDelete = async () => {
+    try {
+      await deleteComment(songId, comment._id);
+      onDelete(comment._id);
+    } catch (err) {
+      console.error("Failed to delete comment", err);
+    }
   };
 
   return (
@@ -32,6 +41,7 @@ const Comment = ({ comment, onReplySubmit }) => {
             <FaReply />
             Reply
           </button>
+          <button className="text-xs text-gray-400 hover:text-red-400" onClick={handleDelete}>Delete</button>
         </div>
 
         {showReply && (
@@ -67,7 +77,7 @@ const Comment = ({ comment, onReplySubmit }) => {
 };
 
 
-const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit }) => {
+const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelete, songId }) => {
   const [text, setText] = useState("");
 
   const handleSubmit = (e) => {
@@ -100,7 +110,7 @@ const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit }) => {
       {/* Comments List */}
       <div className="space-y-4">
         {comments.map((c) => (
-          <Comment key={c._id} comment={c} onReplySubmit={onReplySubmit} />
+          <Comment key={c._id} comment={c} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} />
         ))}
       </div>
     </div>

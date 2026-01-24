@@ -39,6 +39,19 @@ export const getSongComments = async (songId) => {
   const response = await axios.get(`${SONGS_API_URL}/${songId}/comments`);
   return response.data;
 };
+//delete comment
+export const deleteComment = async (songId, commentId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.delete(
+    `${SONGS_API_URL}/${songId}/comments/${commentId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+}
 
 // Rate a song
 export const rateSong = async (id, rating) => {

@@ -32,6 +32,9 @@ router.get("/my", auth, getMySongs);
 // GET /api/songs/:id/comments -> public
 router.get("/:id/comments", getSongComments);
 
+// DELETE /api/songs/:id/comments/:commentId -> logged-in users (comment owner or admin)
+router.delete("/:id/comments/:commentId", auth, deleteComment);
+
 // GET /api/songs/:id → public
 router.get("/:id", getSongById);
 

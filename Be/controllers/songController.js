@@ -72,6 +72,37 @@ exports.getSongComments = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching comments." });
   }
 };
+exports.deleteComment = async (req, res) => {
+  try {
+    const songId = req.params.id;
+    const commentId = req.params.commentId;
+    const userId = req.user.id;
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+
+    if (comment.user.toString() !== userId) {
+      return res.status(403).json({ message: "You are not authorized to delete this comment." });
+    }
+
+    // Remove the comment from the song's comments array
+    const song = await Song.findById(songId);
+    if (song) {
+      song.comments = song.comments.filter(commentId => commentId.toString() !== comment._id.toString());
+      await song.save();
+    }
+
+    // Delete the comment itself
+    await Comment.findByIdAndDelete(commentId);
+
+    res.status(200).json({ message: "Comment deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({ message: "Server error while deleting comment." });
+  }
+};
 
 exports.rateSong = async (req, res) => {
   try {
@@ -206,6 +237,7 @@ exports.getAllSongs = async (req, res) => {
     res.status(500).json({ message: "Error fetching songs" });
   }
 };
+
 
 exports.getMySongs = async (req, res) => {
   try {
