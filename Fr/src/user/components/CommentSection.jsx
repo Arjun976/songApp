@@ -1,5 +1,5 @@
 // components/user/CommentSection.jsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { FaPaperPlane, FaUser, FaReply } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
 import { deleteComment } from "../../api/songs";
