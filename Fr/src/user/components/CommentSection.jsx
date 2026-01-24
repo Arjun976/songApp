@@ -74,7 +74,7 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-3 space-y-3 pl-6 border-l border-gray-700">
             {comment.replies.map((reply) => (
-              <Comment key={reply._id} comment={reply} onReplySubmit={onReplySubmit} />
+              <Comment key={reply._id} comment={reply} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} currentUser={currentUser} />
             ))}
           </div>
         )}
