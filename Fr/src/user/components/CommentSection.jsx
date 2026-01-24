@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { FaPaperPlane, FaUser, FaReply } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
 import { deleteComment } from "../../api/songs";
+import { getUserStats } from "../../api/users";
 import { AuthContext } from "../../context/AuthContext";
 
 const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
@@ -80,7 +81,27 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId }) => {
 
 const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelete, songId }) => {
   const [text, setText] = useState("");
-  const { user } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const [userAvatar, setUserAvatar] = useState(user?.avatar || null);
+
+    useEffect(() => {
+        const fetchUserAvatar = async () => {
+            try {
+                // This is not the most efficient way to get the user avatar.
+                // Ideally, this data should be fetched once and stored in a global context.
+                const stats = await getUserStats();
+                if (stats.avatar) {
+                    setUserAvatar(stats.avatar);
+                }
+            } catch (error) {
+                console.error("Failed to fetch user avatar:", error);
+            }
+        };
+
+        if (user) {
+            fetchUserAvatar();
+        }
+    }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -93,7 +114,7 @@ const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelet
     <div className="space-y-6">
       {/* Add Comment */}
       <form onSubmit={handleSubmit} className="flex gap-3">
-        <Avatar size="sm" src={user?.avatar} alt={user?.name || "You"} />
+        <Avatar size="sm" src={userAvatar} alt={user?.name || "You"} />
         <input
           type="text"
           value={text}

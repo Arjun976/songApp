@@ -68,9 +68,16 @@ const SongDetailPage = () => {
       }));
     } catch (err) {
       console.error("Failed to add comment:", err);
-      // Optionally show an error toast
     }
   };
+
+  const handleDeleteComment = (commentId) => {
+    setSong((prev) => ({
+      ...prev,
+      comments: prev.comments.filter((c) => c._id !== commentId),
+    }));
+  };
+
 
   if (loading) {
     return (
@@ -160,6 +167,8 @@ const SongDetailPage = () => {
           <CommentSection
             comments={song.comments || []}
             onCommentSubmit={handleComment}
+            onDelete={handleDeleteComment}
+            songId={song._id}
             disabled={!user}
           />
         </div>
