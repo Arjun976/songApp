@@ -42,8 +42,10 @@ export const getSongComments = async (songId) => {
 //delete comment
 export const deleteComment = async (songId, commentId) => {
   const token = localStorage.getItem("token");
+  const url = `${SONGS_API_URL}/${songId}/comments/${commentId}`;
+  console.log("Attempting to delete comment at URL:", url); // Debugging log
   const response = await axios.delete(
-    `${SONGS_API_URL}/${songId}/comments/${commentId}`,
+    url,
     {
       headers: {
         Authorization: `Bearer ${token}`,
