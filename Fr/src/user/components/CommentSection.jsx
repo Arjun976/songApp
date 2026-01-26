@@ -12,7 +12,7 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
 
   const canDelete =
     currentUser &&
-    (currentUser._id === comment.user?._id || currentUser.role === "admin");
+    (currentUser.id === comment.user?._id || currentUser.role === "admin");
 
   const handleDelete = async () => {
     try {
