@@ -14,6 +14,7 @@ const {
   rateSong,
   downloadSong,
   getSongComments,
+  deleteComment,
 } = require("../controllers/songController");
 
 // routes/songs.js
