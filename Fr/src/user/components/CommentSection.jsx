@@ -1,26 +1,20 @@
 // components/user/CommentSection.jsx
-import React, { useState, useContext, useEffect } from "react";
-import { FaPaperPlane, FaUser, FaReply } from "react-icons/fa";
+import React, { useState, useContext } from "react";
+import { FaPaperPlane, FaReply } from "react-icons/fa";
 import Avatar from "../../components/ui/Avatar";
 import { deleteComment } from "../../api/songs";
-import { getUserStats } from "../../api/users";
+
 import { AuthContext } from "../../context/AuthContext";
 
 const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
   const [replyText, setReplyText] = useState("");
   const [showReply, setShowReply] = useState(false);
 
-  const handleReplySubmit = (e) => {
-    e.preventDefault();
-    if (!replyText.trim()) return;
-    onReplySubmit?.(comment._id, replyText);
-    setReplyText("");
-    setShowReply(false);
-  };
+  const canDelete =
+    currentUser &&
+    (currentUser._id === comment.user?._id || currentUser.role === "admin");
 
-  const canDelete = currentUser && (currentUser.id === comment.user?._id || currentUser.role === 'admin');
-
-   const handleDelete = async () => {
+  const handleDelete = async () => {
     try {
       await deleteComment(songId, comment._id);
       onDelete(comment._id);
@@ -31,14 +25,16 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
 
   return (
     <div className="flex gap-3">
-      <Avatar size="sm" src={comment.user?.avatar} alt={comment.user?.name} />
+      <Avatar size="sm" src={comment.user?.profilePicture} alt={comment.user?.name} />
       <div className="flex-1">
         <p className="font-semibold text-purple-400">{comment.user?.name}</p>
         <p className="text-gray-300 text-sm">{comment.text}</p>
+
         <div className="flex items-center gap-4 mt-1">
           <p className="text-xs text-gray-500">
             {new Date(comment.createdAt).toLocaleString()}
           </p>
+
           <button
             onClick={() => setShowReply(!showReply)}
             className="text-xs text-gray-400 hover:text-purple-400 flex items-center gap-1"
@@ -46,14 +42,26 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
             <FaReply />
             Reply
           </button>
+
           {canDelete && (
-            <button className="text-xs text-gray-400 hover:text-red-400" onClick={handleDelete}>Delete</button>
+            <button
+              className="text-xs text-gray-400 hover:text-red-400"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
           )}
         </div>
 
         {showReply && (
-          <form onSubmit={handleReplySubmit} className="flex gap-2 mt-2">
-            <Avatar size="xs" alt="You" />
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!replyText.trim()) return;
+            onReplySubmit(comment._id, replyText);
+            setReplyText("");
+            setShowReply(false);
+          }} className="flex gap-2 mt-2">
+            <Avatar size="xs" src={currentUser?.profilePicture} alt="You" />
             <input
               type="text"
               value={replyText}
@@ -62,19 +70,23 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
               className="flex-1 bg-black/30 text-gray-200 rounded-lg px-3 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
               autoFocus
             />
-            <button
-              type="submit"
-              className="bg-purple-600 hover:bg-purple-700 p-2 rounded-lg transition"
-            >
+            <button type="submit" className="bg-purple-600 hover:bg-purple-700 p-2 rounded-lg transition">
               <FaPaperPlane size={12} />
             </button>
           </form>
         )}
 
-        {comment.replies && comment.replies.length > 0 && (
+        {comment.replies?.length > 0 && (
           <div className="mt-3 space-y-3 pl-6 border-l border-gray-700">
             {comment.replies.map((reply) => (
-              <Comment key={reply._id} comment={reply} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} currentUser={currentUser} />
+              <Comment
+                key={reply._id}
+                comment={reply}
+                onReplySubmit={onReplySubmit}
+                onDelete={onDelete}
+                songId={songId}
+                currentUser={currentUser}
+              />
             ))}
           </div>
         )}
@@ -83,43 +95,21 @@ const Comment = ({ comment, onReplySubmit, onDelete, songId, currentUser }) => {
   );
 };
 
-
 const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelete, songId }) => {
   const [text, setText] = useState("");
-    const { user } = useContext(AuthContext);
-    const [userAvatar, setUserAvatar] = useState(user?.avatar || null);
-
-    useEffect(() => {
-        const fetchUserAvatar = async () => {
-            try {
-                // This is not the most efficient way to get the user avatar.
-                // Ideally, this data should be fetched once and stored in a global context.
-                const stats = await getUserStats();
-                if (stats.avatar) {
-                    setUserAvatar(stats.avatar);
-                }
-            } catch (error) {
-                console.error("Failed to fetch user avatar:", error);
-            }
-        };
-
-        if (user) {
-            fetchUserAvatar();
-        }
-    }, [user]);
+  const { user } = useContext(AuthContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    onCommentSubmit?.(text);
+    onCommentSubmit(text);
     setText("");
   };
 
   return (
     <div className="space-y-6">
-      {/* Add Comment */}
       <form onSubmit={handleSubmit} className="flex gap-3">
-        <Avatar size="sm" src={userAvatar} alt={user?.name || "You"} />
+        <Avatar size="sm" src={user?.profilePicture} alt={user?.name || "You"} />
         <input
           type="text"
           value={text}
@@ -127,22 +117,26 @@ const CommentSection = ({ comments = [], onCommentSubmit, onReplySubmit, onDelet
           placeholder="Write a comment..."
           className="flex-1 bg-black/40 text-gray-200 rounded-lg px-4 py-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
-        <button
-          type="submit"
-          className="bg-purple-600 hover:bg-purple-700 p-3 rounded-lg transition"
-        >
+        <button type="submit" className="bg-purple-600 hover:bg-purple-700 p-3 rounded-lg transition">
           <FaPaperPlane />
         </button>
       </form>
 
-      {/* Comments List */}
       <div className="space-y-4">
         {comments.map((c) => (
-          <Comment key={c._id} comment={c} onReplySubmit={onReplySubmit} onDelete={onDelete} songId={songId} currentUser={user} />
+          <Comment
+            key={c._id}
+            comment={c}
+            onReplySubmit={onReplySubmit}
+            onDelete={onDelete}
+            songId={songId}
+            currentUser={user}
+          />
         ))}
       </div>
     </div>
   );
 };
+
 
 export default CommentSection;
