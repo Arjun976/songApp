@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext.jsx";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +26,11 @@ const Login = () => {
     }
 
     try {
-      const { success, data, error: loginError } = await login({ email, password });
+      const {
+        success,
+        data,
+        error: loginError,
+      } = await login({ email, password });
 
       if (!success) {
         throw new Error(loginError || "Login failed");
@@ -96,6 +101,17 @@ const Login = () => {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
+          </div>
+          <div>
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                console.log(credentialResponse);
+              }}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            />
+            ;
           </div>
 
           {/* Login Button */}

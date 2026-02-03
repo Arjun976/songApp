@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaUser, FaMusic } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Register = () => {
   const [formData, setFormData] = useState({
